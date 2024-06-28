@@ -1,0 +1,11 @@
+{
+	"id": "tier-list",
+	"name": "Tier List",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Creates cool Tier Lists.",
+	"author": "Mox Alehin",
+	"authorUrl": "https://obsidian.md",
+	"fundingUrl": "https://obsidian.md/pricing",
+	"isDesktopOnly": true
+}

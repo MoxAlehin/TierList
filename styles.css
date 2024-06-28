@@ -1,0 +1,89 @@
+body {
+    --tier-list-indent: var(--hr-thickness);
+    --tier-list-aspect-ratio: 1 / 1;
+}
+
+.tier-list-container {
+    font-size: 0.7em;
+    background-color: var(--background-modifier-border);  
+    display: inline-block;
+    transform: translateX(calc((var(--file-line-width) / 2) - (var(--tier-list-slot-width) * var(--tier-list-slot-count) / 2)));
+}
+
+.tier-list-row {
+    margin: var(--tier-list-indent);
+    background-color: var(--background-modifier-border);
+    display: flex;
+    align-items: stretch;
+    gap: var(--tier-list-indent);
+}
+
+.tier-list-tier {
+    background-color: var(--background-primary);
+    width: var(--tier-list-slot-width);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tier-list-list {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--background-primary);
+    width: calc(var(--tier-list-slot-width) * 10);
+}
+
+.tier-list-list-last {
+    width: 100%;
+}
+
+.tier-list-slot {
+    width: var(--tier-list-slot-width);
+    height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
+    background-color: var(--background-secondary);
+    overflow: hidden; /* Отключение прокрутки */
+    text-align: center;
+    position: relative;
+    display: flex;
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: center; /* Центрирование по вертикали */
+    word-wrap: break-word; /* Перенос слов на новые строки */
+    white-space: normal; /* Позволяет тексту переноситься на новые строки */
+}
+
+.tier-list-slot img {
+    margin: 0;
+    padding: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Картинка покрывает весь контейнер */
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.tier-list-slot .text-content {
+    padding: 0.5em; /* Добавляем отступы только для текста */
+    z-index: 1; /* Устанавливаем текст выше изображения */
+    position: relative;
+}
+
+.tier-list-list .tier-list-slot {
+    overflow: hidden; /* Отключение прокрутки */
+}
+
+/* Settings Tab */
+
+.tier-list-number-setting {
+    width: 3em;
+    text-align: center;
+}
+
+.setting-item-control:has(input.tier-list-persentage-setting)::after {
+    content: '%\00a0\00a0\00a0';
+}
+
+.setting-item-control:has(input.tier-list-pieces-setting)::after {
+    content: 'pcs.';
+}
