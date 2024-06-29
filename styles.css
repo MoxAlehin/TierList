@@ -1,6 +1,8 @@
 body {
     --tier-list-indent: var(--hr-thickness);
     --tier-list-aspect-ratio: 1 / 1;
+    /* --tier-list-slot-width: calc(var(--screen-width) * var(--tier-list-width-ratio) / (var(--tier-list-slot-count) + 1) - 2 * var(--tier-list-indent)) */
+    --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
 }
 
 .tier-list-container {
