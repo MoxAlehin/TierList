@@ -47,6 +47,20 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             const link = el.find('a.external-link');
             slot.append(link);
         }
+        
+        // Check for internal-embed span and replace with img
+        else if (el.find('span.internal-embed')) {
+            const embedSpan = el.find('span.internal-embed');
+            const imageSrc = embedSpan.getAttribute('src');
+            const internalImageFile = app.metadataCache.getFirstLinkpathDest(imageSrc || '', '');
+            if (imageSrc) {
+                const img = slot.createEl('img');
+                if (internalImageFile)
+                    img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
+                slot.append(img);
+            }
+        }
+
         // Default is transferring elements from li
         else {
             el.findAll('div.list-collapse-indicator').forEach(el => el.remove());
