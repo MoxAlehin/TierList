@@ -10,19 +10,13 @@ import { TierListSettings } from 'settings';
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
     function renderSlot(parent: HTMLElement, el: HTMLElement): HTMLElement {
         const slot = parent.createEl('div', {cls: 'tier-list-slot'});
+
         // Check if we have embedded image
         if (el.find('img')) {
             slot.append(el.find('img'));
         }
-        // Check if we have external not embedded image
-        else if (el.find('a.external-link')) {
-            const link = el.find('a.external-link');
-            const img = slot.createEl('img');
-            img.setAttribute('src', link?.getAttribute('href') || '');
-            img.setAttribute('alt', link?.textContent || '');
-        }
         // Check if we have Internal Link
-        else if (el.find('a.internal-link')) {
+        else if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
             const link = el.find('a.internal-link');
             const filePath = link.getAttribute('href');
             if (filePath) {
@@ -30,12 +24,28 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 if (file) {
                     const fileCache = app.metadataCache.getFileCache(file);
                     if (fileCache && fileCache.frontmatter && fileCache.frontmatter['Image']) {
-                        const imageSrc = fileCache.frontmatter['Image'];
+                        let imageSrc = fileCache.frontmatter['Image'];
                         const img = slot.createEl('img');
+
+                        // Check if Image field is an internal link
+                        const internalLinkMatch = imageSrc.match(/!?\[\[(.*?)\]\]/);
+                        if (internalLinkMatch) {
+                            const internalImageFilePath = internalLinkMatch[1];
+                            const internalImageFile = app.metadataCache.getFirstLinkpathDest(internalImageFilePath, '');
+                            if (internalImageFile) {    
+                                imageSrc = app.vault.getResourcePath(internalImageFile);
+                            }
+                        }
+
                         img.setAttribute('src', imageSrc);
                     }
                 }
             }
+        }
+        // Check if we have external link (not embedded)
+        else if (el.find('a.external-link')) {
+            const link = el.find('a.external-link');
+            slot.append(link);
         }
         // Default is transferring elements from li
         else {
