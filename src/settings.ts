@@ -13,7 +13,6 @@ export interface TierListSettings {
 	unordered: string;
 	tag: string;
 	containerWidth: number;
-	slotWidth: number;
 	slotCount: number;
 }
 
@@ -26,7 +25,6 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	unordered: 'To Rank',
 	tag: '#tier-list',
 	containerWidth: 70,
-	slotWidth: 7,
 	slotCount: 10,
 };
 

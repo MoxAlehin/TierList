@@ -7,7 +7,7 @@ body {
     font-size: 0.7em;
     background-color: var(--background-modifier-border);  
     display: inline-block;
-    transform: translateX(calc((var(--file-line-width) / 2) - (var(--tier-list-slot-width) * var(--tier-list-slot-count) / 2)));
+    /* transform: translateX(calc((var(--file-line-width) / 2) - (var(--tier-list-slot-width) * var(--tier-list-slot-count) / 2))); */
 }
 
 .tier-list-row {
@@ -30,7 +30,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     background-color: var(--background-primary);
-    width: calc(var(--tier-list-slot-width) * 10);
+    width: calc(var(--tier-list-slot-width) * var(--tier-list-slot-count));
 }
 
 .tier-list-list-last {
@@ -86,4 +86,15 @@ body {
 
 .setting-item-control:has(input.tier-list-pieces-setting)::after {
     content: 'pcs.';
+}
+
+.tier-list-container-wrapper {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
 }

@@ -56,8 +56,10 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             outerOl.findAll(`a[href="${settings.tag}"]`).forEach(el => el.remove());
 
             // Tier List Element
-            const tierListContainer = document.createElement('div');
-            tierListContainer.addClass('tier-list-container');
+            const tierListWrapper = document.createElement('div');
+            tierListWrapper.addClass('tier-list-container-wrapper');
+
+            const tierListContainer = tierListWrapper.createEl('div', {cls: 'tier-list-container'});
 
             // For Each Nested List
             outerOl.findAll('li:has(ol)').forEach(outerLi => {
@@ -85,7 +87,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     renderSlot(tier, outerLi);
                 }
             });
-            outerOl.replaceWith(tierListContainer);
+            outerOl.replaceWith(tierListWrapper);
         });
     }
 }
