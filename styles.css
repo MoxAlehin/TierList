@@ -21,7 +21,7 @@ body {
 }
 
 .tier-list-tier {
-    background-color: var(--background-primary);
+    background-color: var(--background-secondary);
     width: var(--tier-list-slot-width);
     display: flex;
     justify-content: center;
