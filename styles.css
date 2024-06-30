@@ -1,15 +1,24 @@
 body {
     --tier-list-indent: var(--hr-thickness);
-    --tier-list-aspect-ratio: 1 / 1;
-    /* --tier-list-slot-width: calc(var(--screen-width) * var(--tier-list-width-ratio) / (var(--tier-list-slot-count) + 1) - 2 * var(--tier-list-indent)) */
+    --tier-list-aspect-ratio: 0.666;
     --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
+}
+
+.tier-list-container-wrapper {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
 }
 
 .tier-list-container {
     font-size: 0.7em;
     background-color: var(--background-modifier-border);  
     display: inline-block;
-    /* transform: translateX(calc((var(--file-line-width) / 2) - (var(--tier-list-slot-width) * var(--tier-list-slot-count) / 2))); */
 }
 
 .tier-list-row {
@@ -41,7 +50,9 @@ body {
 
 .tier-list-slot {
     width: var(--tier-list-slot-width);
+    max-width: var(--tier-list-slot-width);
     height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
+    max-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
     background-color: var(--background-secondary);
     overflow: hidden; /* Отключение прокрутки */
     text-align: center;
@@ -51,6 +62,7 @@ body {
     align-items: center; /* Центрирование по вертикали */
     word-wrap: break-word; /* Перенос слов на новые строки */
     white-space: normal; /* Позволяет тексту переноситься на новые строки */
+    margin: 0px !important;
 }
 
 .tier-list-slot img {
@@ -88,15 +100,4 @@ body {
 
 .setting-item-control:has(input.tier-list-pieces-setting)::after {
     content: 'pcs.';
-}
-
-.tier-list-container-wrapper {
-    position: relative;
-    width: 100vw;
-    left: 50%;
-    transform: translateX(-50%);
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    flex-wrap: nowrap;
 }

@@ -1,19 +1,19 @@
 import { 
     App, 
     MarkdownPostProcessorContext,
-    normalizePath,
-    MarkdownPostProcessor
+    MarkdownRenderer
 } from 'obsidian';
 import { getAPI, Link } from 'obsidian-dataview';
 import { TierListSettings } from 'settings';
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
-    function renderSlot(parent: HTMLElement, el: HTMLElement): HTMLElement {
+    async function renderSlot(parent: HTMLElement, el: HTMLElement): Promise<HTMLElement> {
         const slot = parent.createEl('div', {cls: 'tier-list-slot'});
 
         // Check if we have embedded image
-        if (el.find('img')) {
-            slot.append(el.find('img'));
+        const img = el.find('img');
+        if (img) {
+            slot.appendChild(img.cloneNode(true));
         }
         // Check if we have Internal Link
         else if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
@@ -25,42 +25,32 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     const fileCache = app.metadataCache.getFileCache(file);
                     if (fileCache && fileCache.frontmatter && fileCache.frontmatter['Image']) {
                         let imageSrc = fileCache.frontmatter['Image'];
-                        const img = slot.createEl('img');
 
                         // Check if Image field is an internal link
-                        const internalLinkMatch = imageSrc.match(/!?\[\[(.*?)\]\]/);
-                        if (internalLinkMatch) {
-                            const internalImageFilePath = internalLinkMatch[1];
-                            const internalImageFile = app.metadataCache.getFirstLinkpathDest(internalImageFilePath, '');
-                            if (internalImageFile) {    
-                                imageSrc = app.vault.getResourcePath(internalImageFile);
-                            }
-                        }
-
-                        img.setAttribute('src', imageSrc);
+                        // const internalLinkMatch = imageSrc.match(/!?\[\[(.*?)\]\]/);
+                        // if (internalLinkMatch) {
+                        //     const internalImageFilePath = internalLinkMatch[1];
+                        //     imageSrc = internalImageFilePath;
+                        // }
+                        
+                        if (imageSrc.match('http'))
+                            imageSrc = `[](${imageSrc})`
+                        await MarkdownRenderer.renderMarkdown(`!${imageSrc}`, slot, '', this);
                     }
                 }
             }
         }
-        // Check if we have external link (not embedded)
-        else if (el.find('a.external-link')) {
-            const link = el.find('a.external-link');
-            slot.append(link);
-        }
-        
         // Check for internal-embed span and replace with img
         else if (el.find('span.internal-embed')) {
             const embedSpan = el.find('span.internal-embed');
             const imageSrc = embedSpan.getAttribute('src');
             const internalImageFile = app.metadataCache.getFirstLinkpathDest(imageSrc || '', '');
-            if (imageSrc) {
+            if (imageSrc && internalImageFile) {
                 const img = slot.createEl('img');
-                if (internalImageFile)
-                    img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
-                slot.append(img);
+                img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
+                slot.appendChild(img);
             }
         }
-
         // Default is transferring elements from li
         else {
             el.findAll('div.list-collapse-indicator').forEach(el => el.remove());
@@ -69,7 +59,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         }
         return slot;
     }
-    
+
     return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
         // For Each Nesting List
         el.findAll(`ol:has(ol)`).forEach(outerOl => {
