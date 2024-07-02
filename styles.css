@@ -101,3 +101,16 @@ body {
 .setting-item-control:has(input.tier-list-pieces-setting)::after {
     content: 'pcs.';
 }
+
+.tier-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.drag-handle {
+    cursor: move;
+    width: 20px;
+    height: 20px;
+}

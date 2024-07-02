@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting, TextComponent } from 'obsidian';
-import TierListPlugin from 'main'
+import TierListPlugin from 'main';
+import Sortable from 'sortablejs';
 
 interface TierItem {
 	name: string;
@@ -34,26 +35,25 @@ export class SettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: TierListPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
-		
 	}
 
-	//Check if TextComponent value matches regex and do some cosmetic stuff
+	// Check if TextComponent value matches regex and do some cosmetic stuff
 	checkNumber = async (text: TextComponent, regex: RegExp = /^(100|[1-9]?[0-9])$/): Promise<boolean> => {
-		const value = text.getValue()
-		//Delete useless heading zeros
+		const value = text.getValue();
+		// Delete useless heading zeros
 		if (value[0] == '0' && value.length > 1)
-			text.setValue(value.slice(1))
+			text.setValue(value.slice(1));
 
 		if (regex.test(value)) {
-			//save valid data to attribute
+			// save valid data to attribute
 			text.inputEl.setAttribute('data-last-valid', value);
 			return true;
 		}
-		//if value isn't empty and doesn't match then we should set last valid value
+		// if value isn't empty and doesn't match then we should set last valid value
 		else if (value != '')
-			text.setValue(text.inputEl.getAttribute('data-last-valid') || '')
+			text.setValue(text.inputEl.getAttribute('data-last-valid') || '');
 		return false;
-	}
+	};
 
 	display(): void {
 		const { containerEl } = this;
@@ -61,8 +61,8 @@ export class SettingTab extends PluginSettingTab {
 
 		// General Header/////////////////////////////////////////////////////////////////////////////////////
 		containerEl.createEl('h1', { text: 'General' });
-		
-		//Order Dropdown
+
+		// Order Dropdown
 		new Setting(containerEl)
 			.setName('Order')
 			.addDropdown(dropdown => {
@@ -74,10 +74,10 @@ export class SettingTab extends PluginSettingTab {
 						this.plugin.settings.order = value === 'true';
 						this.display();
 						await this.plugin.saveSettings();
-					})
+					});
 			});
 
-		//Image Name Text
+		// Image Name Text
 		new Setting(containerEl)
 			.setName('Image Property Name')
 			.setDesc('Obsidian property which is used as Image reference')
@@ -87,10 +87,10 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.property = value;
 						await this.plugin.saveSettings();
-					})
+					});
 			});
 
-		//Rank List Name Text
+		// Rank List Name Text
 		new Setting(containerEl)
 			.setName('To Rank List Name')
 			.setDesc('The last and not renderable list')
@@ -100,10 +100,10 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.unordered = value;
 						await this.plugin.saveSettings();
-					})
+					});
 			});
 		
-		//Tag Name Text
+		// Tag Name Text
 		new Setting(containerEl)
 			.setName('Tag Name')
 			.setDesc('Tag which marks list as Tier List')
@@ -113,10 +113,10 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.tag = value;
 						await this.plugin.saveSettings();
-					})
+					});
 			});
 		
-		//Tier List Container Width Text(Integer)
+		// Tier List Container Width Text(Integer)
 		new Setting(containerEl)
 			.setName('Tier List Width')
 			.setDesc('Width of Tier List container in percentage of screen')
@@ -130,33 +130,35 @@ export class SettingTab extends PluginSettingTab {
 							this.plugin.saveSettings();
 							this.plugin.resize();
 						}
-					})
-					
-			})
+					});
+			});
 
-		//Number of Slots in tier Text(Integer)
+		// Number of Slots in tier Text(Integer)
 		new Setting(containerEl)
 			.setName('Number of Slots')
 			.setDesc('How many slots will be displayed on one row before wrap to next line')
 			.addText(text => {
 				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-pieces-setting');
-				text.setValue(this.plugin.settings.slotCount.toString())
+				text.setValue(this.plugin.settings.slotCount.toString());
 				text.onChange(async value => {
 					if (await this.checkNumber(text)) {
 						this.plugin.settings.slotCount = Number(text.getValue());
 						this.plugin.saveSettings();
 						this.plugin.resize();
 					}
-				})
-			})
+				});
+			});
 
 		// Default Tiers Header/////////////////////////////////////////////////////////////////////////////////////
 		containerEl.createEl('h1', { text: 'Default Tiers' });
 
-		this.plugin.settings.tiers.forEach((tier, index) => {
+		const tierListEl = containerEl.createEl('div', { cls: 'tier-list' });
 
-			//Setting For Each Default Tier Lists
-			const setting = new Setting(containerEl)
+		this.plugin.settings.tiers.forEach((tier, index) => {
+			const tierEl = tierListEl.createEl('div', { cls: 'tier-item', attr: { 'data-index': index.toString() } });
+
+			// Setting For Each Default Tier Lists
+			const setting = new Setting(tierEl)
 				.setName(`Tier #${index + 1}`)
 				.addText(text => text
 					.setPlaceholder('Name')
@@ -167,15 +169,15 @@ export class SettingTab extends PluginSettingTab {
 					})
 				);
 			
-			//Tier Color Picker
+			// Tier Color Picker
 			setting.addColorPicker(picker => {
-				picker.setValue(tier.color)
+				picker.setValue(tier.color);
 				picker.onChange((value) => {
-					tier.color = value
+					tier.color = value;
 					this.display();
 					this.plugin.saveSettings();
-				})
-			})
+				});
+			});
 
 			// Delete Tier Button
 			setting.addButton(button => button
@@ -187,6 +189,9 @@ export class SettingTab extends PluginSettingTab {
 					this.display();
 				})
 			);
+
+			// Handle Drag Icon
+			tierEl.createEl('div', { cls: 'drag-handle' });
 		});
 
 		// Add new Tier Button
@@ -199,5 +204,22 @@ export class SettingTab extends PluginSettingTab {
 					this.display();
 				})
 			);
+
+		// Initialize Sortable
+		Sortable.create(tierListEl, {
+			// handle: '.drag-handle',
+			animation: 150,
+			onEnd: async (evt) => {
+				const oldIndex = evt.oldIndex!;
+				const newIndex = evt.newIndex!;
+				if (oldIndex !== newIndex) {
+					const movedItem = this.plugin.settings.tiers.splice(oldIndex, 1)[0];
+					this.plugin.settings.tiers.splice(newIndex, 0, movedItem);
+					await this.plugin.saveSettings();
+					this.display();
+				}
+			}
+		});
 	}
 }
+
