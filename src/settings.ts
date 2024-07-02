@@ -157,9 +157,10 @@ export class SettingTab extends PluginSettingTab {
 		this.plugin.settings.tiers.forEach((tier, index) => {
 			const tierEl = tierListEl.createEl('div', { cls: 'tier-item', attr: { 'data-index': index.toString() } });
 
+			const tierLabel = tierEl.createEl('div', { text: `Tier №${index + 1}`, cls: 'setting-item-name' });
 			// Setting For Each Default Tier Lists
 			const setting = new Setting(tierEl)
-				.setName(`Tier #${index + 1}`)
+				// .setName(`Tier №${index + 1}`)
 				.addText(text => text
 					.setPlaceholder('Name')
 					.setValue(tier.name)
@@ -189,9 +190,6 @@ export class SettingTab extends PluginSettingTab {
 					this.display();
 				})
 			);
-
-			// Handle Drag Icon
-			tierEl.createEl('div', { cls: 'drag-handle' });
 		});
 
 		// Add new Tier Button
