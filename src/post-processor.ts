@@ -3,7 +3,6 @@ import {
     MarkdownPostProcessorContext,
     MarkdownRenderer
 } from 'obsidian';
-import { getAPI, Link } from 'obsidian-dataview';
 import { TierListSettings } from 'settings';
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
@@ -25,17 +24,9 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     const fileCache = app.metadataCache.getFileCache(file);
                     if (fileCache && fileCache.frontmatter && fileCache.frontmatter['Image']) {
                         let imageSrc = fileCache.frontmatter['Image'];
-
-                        // Check if Image field is an internal link
-                        // const internalLinkMatch = imageSrc.match(/!?\[\[(.*?)\]\]/);
-                        // if (internalLinkMatch) {
-                        //     const internalImageFilePath = internalLinkMatch[1];
-                        //     imageSrc = internalImageFilePath;
-                        // }
-                        
                         if (imageSrc.match('http'))
                             imageSrc = `[](${imageSrc})`
-                        await MarkdownRenderer.renderMarkdown(`!${imageSrc}`, slot, '', this);
+                        await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', this.plugin);
                     }
                 }
             }
