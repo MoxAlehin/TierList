@@ -9,11 +9,13 @@ import { TierListSettings } from 'settings';
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
     async function renderSlot(parent: HTMLElement, el: HTMLElement): Promise<HTMLElement> {
         const slot = parent.createEl('div', { cls: 'tier-list-slot' });
-
+    
         // Check if we have embedded image
         const img = el.find('img');
         if (img) {
             slot.appendChild(img.cloneNode(true));
+            addClickHandler(slot, el);
+            addCursorChangeHandler(slot); // Add this line
         }
         // Check if we have Internal Link
         else if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
@@ -29,6 +31,8 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                             imageSrc = `[](${imageSrc})`
                         await MarkdownRenderer.renderMarkdown(`!${imageSrc}`, slot, '', this.plugin);
                     }
+                    addClickHandler(slot, el);
+                    addCursorChangeHandler(slot); // Add this line
                 }
             }
         }
@@ -41,6 +45,8 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 const img = slot.createEl('img');
                 img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
                 slot.appendChild(img);
+                addClickHandler(slot, el);
+                addCursorChangeHandler(slot); // Add this line
             }
         }
         // Default is transferring elements from li
@@ -48,8 +54,59 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             el.findAll('div.list-collapse-indicator').forEach(el => el.remove());
             const textContainer = slot.createEl('div', { cls: 'text-content' });
             textContainer.innerHTML = el.innerHTML;
+            addClickHandler(slot, el);
+            addCursorChangeHandler(slot); // Add this line
         }
         return slot;
+    }
+
+    function addCursorChangeHandler(slot: HTMLElement) {
+        slot.addEventListener('mouseover', (event: MouseEvent) => {
+            if (event.ctrlKey) {
+                slot.style.cursor = 'help';
+            }
+        });
+    
+        slot.addEventListener('mouseout', (event: MouseEvent) => {
+            slot.style.cursor = 'default';
+        });
+    
+        slot.addEventListener('mousemove', (event: MouseEvent) => {
+            if (event.ctrlKey) {
+                slot.style.cursor = 'help';
+            } else {
+                slot.style.cursor = 'default';
+            }
+        });
+    }
+
+    function addClickHandler(slot: HTMLElement, el: HTMLElement) {
+        slot.addEventListener('click', (event: MouseEvent) => {
+            if (event.ctrlKey) {
+                const link = el.find('a.internal-link, a.external-link');
+                if (link) {
+                    const href = link.getAttribute('href');
+                    if (href) {
+                        if (link.hasClass('internal-link')) {
+                            const file = app.metadataCache.getFirstLinkpathDest(href, '');
+                            if (file) {
+                                app.workspace.openLinkText(href, file.path);
+                            }
+                        } else {
+                            window.open(href, '_blank');
+                        }
+                    }
+                } else {
+                    const img = slot.find('img');
+                    if (img) {
+                        const src = img.getAttribute('src');
+                        if (src) {
+                            window.open(src, '_blank');
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function initializeSortableSlots(tierListContainer: HTMLElement) {
