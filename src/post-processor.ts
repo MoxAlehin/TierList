@@ -3,11 +3,12 @@ import {
     MarkdownPostProcessorContext,
     MarkdownRenderer
 } from 'obsidian';
+import Sortable from 'sortablejs';
 import { TierListSettings } from 'settings';
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
     async function renderSlot(parent: HTMLElement, el: HTMLElement): Promise<HTMLElement> {
-        const slot = parent.createEl('div', {cls: 'tier-list-slot'});
+        const slot = parent.createEl('div', { cls: 'tier-list-slot' });
 
         // Check if we have embedded image
         const img = el.find('img');
@@ -26,7 +27,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                         let imageSrc = fileCache.frontmatter['Image'];
                         if (imageSrc.match('http'))
                             imageSrc = `[](${imageSrc})`
-                        await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', this.plugin);
+                        await MarkdownRenderer.renderMarkdown(`!${imageSrc}`, slot, '', this.plugin);
                     }
                 }
             }
@@ -45,10 +46,34 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         // Default is transferring elements from li
         else {
             el.findAll('div.list-collapse-indicator').forEach(el => el.remove());
-            const textContainer = slot.createEl('div', {cls: 'text-content'});
+            const textContainer = slot.createEl('div', { cls: 'text-content' });
             textContainer.innerHTML = el.innerHTML;
         }
         return slot;
+    }
+
+    function initializeSortableSlots(tierListContainer: HTMLElement) {
+        // Initialize Sortable for all tier-list-list elements
+        tierListContainer.querySelectorAll('.tier-list-list').forEach(list => {
+            Sortable.create(list as HTMLElement, {
+                group: 'tier-list-slots',
+                animation: 150,
+                onEnd: (evt) => {
+                    // Update the underlying Markdown structure here if needed
+                }
+            });
+        });
+    }
+
+    function initializeSortableRows(tierListContainer: HTMLElement) {
+        Sortable.create(tierListContainer, {
+            handle: '.tier-list-tier',
+            group: 'tier-list-rows',
+            animation: 150,
+            onEnd: (evt) => {
+                // Update the underlying Markdown structure here if needed
+            }
+        });
     }
 
     return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
@@ -64,21 +89,21 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             const tierListWrapper = document.createElement('div');
             tierListWrapper.addClass('tier-list-container-wrapper');
 
-            const tierListContainer = tierListWrapper.createEl('div', {cls: 'tier-list-container'});
+            const tierListContainer = tierListWrapper.createEl('div', { cls: 'tier-list-container' });
 
             // For Each Nested List
             outerOl.findAll('li:has(ol)').forEach(outerLi => {
                 // Create Row
-                const row = tierListContainer.createEl('div', {cls: 'tier-list-row'});
+                const row = tierListContainer.createEl('div', { cls: 'tier-list-row' });
 
                 // Create Tier Box (if needed)
                 let tier;
                 let list: HTMLElement;
                 if (!outerLi.textContent?.startsWith(settings.unordered)) {
-                    tier = row.createEl('div', {cls: 'tier-list-tier'});
-                    list = row.createEl('div', {cls: 'tier-list-list'});
+                    tier = row.createEl('div', { cls: 'tier-list-tier' });
+                    list = row.createEl('div', { cls: 'tier-list-list' });
                 } else {
-                    list = row.createEl('div', {cls: ['tier-list-list', 'tier-list-list-last']});
+                    list = row.createEl('div', { cls: ['tier-list-list', 'tier-list-list-last'] });
                 }
 
                 // Fill Ranking List
@@ -92,6 +117,9 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     renderSlot(tier, outerLi);
                 }
             });
+
+            initializeSortableSlots(tierListContainer);
+            initializeSortableRows(tierListContainer);
             outerOl.replaceWith(tierListWrapper);
         });
     }

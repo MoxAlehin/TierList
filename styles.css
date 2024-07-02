@@ -13,6 +13,7 @@ body {
     display: flex;
     justify-content: center;
     flex-wrap: nowrap;
+    margin: 1em 0px;
 }
 
 .tier-list-container {
