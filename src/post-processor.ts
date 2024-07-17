@@ -29,7 +29,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                         let imageSrc = fileCache.frontmatter['Image'];
                         if (imageSrc.match('http'))
                             imageSrc = `[](${imageSrc})`
-                        await MarkdownRenderer.renderMarkdown(`!${imageSrc}`, slot, '', this.plugin);
+                        await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', this.plugin);
                     }
                     addClickHandler(slot, el);
                     addCursorChangeHandler(slot); // Add this line
