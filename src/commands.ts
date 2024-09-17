@@ -21,9 +21,11 @@ export const insertTierListCommand = (settings: TierListSettings) => {
 const constructTierList = (settings: TierListSettings) => {
     let text = '';
     settings.tiers.forEach(tier => {
-        text += `- ${tier.name}\n`;
+        text += `1. ${tier.name}\n`;
     })
-    text += `- ${settings.unordered}\n`;
-    text += `\t- `;
+    text += `1. ${settings.unordered} \n`;
+    text += `\t1. \n`;
+    text += `1. ${settings.settings} ${settings.tag}\n`;
+    text += `\t1. \n`;
     return text;
 }
