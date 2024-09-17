@@ -7,7 +7,6 @@ import Sortable from 'sortablejs';
 import { TierListSettings } from 'settings';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
-    console.log(settings)
     el.style.setProperty('--tier-list-width-ratio', `${settings.width / 100}`);
     el.style.setProperty('--screen-width', `${screen.width}px`);
     el.style.setProperty('--tier-list-slot-count', `${settings.slots}`);
