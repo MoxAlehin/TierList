@@ -6,6 +6,14 @@ import {
 import Sortable from 'sortablejs';
 import { TierListSettings } from 'settings';
 
+export function redraw(el: HTMLElement, settings: TierListSettings) {
+    console.log(settings)
+    el.style.setProperty('--tier-list-width-ratio', `${settings.width / 100}`);
+    el.style.setProperty('--screen-width', `${screen.width}px`);
+    el.style.setProperty('--tier-list-slot-count', `${settings.slots}`);
+    el.style.setProperty('--tier-list-aspect-ratio', `${settings.ratio}`);
+}
+
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
     async function renderSlot(parent: HTMLElement, el: HTMLElement): Promise<HTMLElement> {
         const slot = parent.createEl('div', { cls: 'tier-list-slot' });
@@ -153,8 +161,55 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
 
             // For Each Nested List
             outerOl.findAll(':scope > li').forEach(outerLi => {
-
+                //Settings override
                 if (outerLi.textContent?.startsWith(settings.settings)) {
+
+                    const pairs: { [key: string]: string } = {};
+
+                    outerLi.findAll('li').forEach(setting => {
+                        const text = setting.textContent || '';
+                        const [key, value] = text.split(':').map(item => item.trim());
+                        if (key && value) {
+                            pairs[key] = value;
+                        }
+                    });
+
+                    const localSettings: TierListSettings = { ...settings }; 
+
+                    for (const [key, value] of Object.entries(pairs)) {
+                        switch (key.toLowerCase()) {
+                            case 'order':
+                                localSettings.order = value.toLowerCase() === 'true';
+                                break;
+                            case 'property':
+                                localSettings.property = value;
+                                break;
+                            case 'unordered':
+                                localSettings.unordered = value;
+                                break;
+                            case 'tag':
+                                localSettings.tag = value;
+                                break;
+                            case 'width':
+                                localSettings.width = parseInt(value);
+                                break;
+                            case 'slots':
+                                localSettings.slots = parseInt(value);
+                                break;
+                            case 'settings':
+                                localSettings.settings = value;
+                                break;
+                            case 'ratio':
+                                localSettings.ratio = parseFloat(value);
+                                break;
+                            default:
+                                console.warn(`Unknown setting key: ${key}`);
+                                break;
+                        }
+                    }
+
+                    redraw(tierListContainer, localSettings)
+                    
                     return;
                 }
 
@@ -165,8 +220,15 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 let tier;
                 let list: HTMLElement;
                 if (!outerLi.textContent?.startsWith(settings.unordered)) {
+
                     tier = row.createEl('div', { cls: 'tier-list-tier' });
                     list = row.createEl('div', { cls: 'tier-list-list' });
+
+                    const matchedTier = settings.tiers.find(tier => outerLi.textContent?.startsWith(tier.name));
+                    if (matchedTier) {
+                        tier.style.setProperty('background-color', `${matchedTier.color}`);
+                    }
+
                 } else {
                     list = row.createEl('div', { cls: ['tier-list-list', 'tier-list-list-last'] });
                 }

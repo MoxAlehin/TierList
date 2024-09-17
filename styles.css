@@ -1,9 +1,3 @@
-body {
-    --tier-list-indent: var(--hr-thickness);
-    --tier-list-aspect-ratio: 0.666;
-    --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
-}
-
 .tier-list-container-wrapper {
     position: relative;
     width: 100vw;
@@ -20,6 +14,8 @@ body {
     font-size: 0.7em;
     background-color: var(--background-modifier-border);  
     display: inline-block;
+    --tier-list-indent: var(--hr-thickness);
+    --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
 }
 
 .tier-list-row {
@@ -55,7 +51,7 @@ body {
     max-width: var(--tier-list-slot-width);
     height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
     max-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
-    background-color: var(--background-secondary);
+    /* background-color: var(--background-secondary); */
     overflow: hidden; /* Отключение прокрутки */
     text-align: center;
     position: relative;
@@ -86,6 +82,7 @@ body {
 }
 
 .tier-list-list .tier-list-slot {
+    background-color: var(--background-secondary);
     overflow: hidden; /* Отключение прокрутки */
 }
 
