@@ -11,7 +11,7 @@ export default class TierListPlugin extends Plugin {
 		this.addSettingTab(new SettingTab(this.app, this));
 		this.registerMarkdownPostProcessor(generateTierListMarkdownPostProcessor(this.app, this.settings));
 		this.addCommand(insertTierListCommand(this.settings));
-		this.resize()
+		this.resize();
 	}
 
 	async loadSettings() {
@@ -24,8 +24,8 @@ export default class TierListPlugin extends Plugin {
 
 	resize() {
 		// document.documentElement.style.setProperty('--tier-list-slot-width', `${screen.width / this.settings.slotCount * this.settings.containerWidth / 100}px`)
-		document.documentElement.style.setProperty('--tier-list-width-ratio', `${this.settings.containerWidth / 100}`)
-		document.documentElement.style.setProperty('--screen-width', `${screen.width}px`)
-		document.documentElement.style.setProperty('--tier-list-slot-count', `${this.settings.slotCount}`)
+		document.documentElement.style.setProperty('--tier-list-width-ratio', `${this.settings.containerWidth / 100}`);
+		document.documentElement.style.setProperty('--screen-width', `${screen.width}px`);
+		document.documentElement.style.setProperty('--tier-list-slot-count', `${this.settings.slotCount}`);
 	}
 }

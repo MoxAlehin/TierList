@@ -15,7 +15,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         if (img) {
             slot.appendChild(img.cloneNode(true));
             addClickHandler(slot, el);
-            addCursorChangeHandler(slot); // Add this line
+            addCursorChangeHandler(slot);
         }
         // Check if we have Internal Link
         else if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
@@ -32,7 +32,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                         await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', this.plugin);
                     }
                     addClickHandler(slot, el);
-                    addCursorChangeHandler(slot); // Add this line
+                    addCursorChangeHandler(slot);
                 }
             }
         }
@@ -46,7 +46,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
                 slot.appendChild(img);
                 addClickHandler(slot, el);
-                addCursorChangeHandler(slot); // Add this line
+                addCursorChangeHandler(slot);
             }
         }
         // Default is transferring elements from li
@@ -55,7 +55,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             const textContainer = slot.createEl('div', { cls: 'text-content' });
             textContainer.innerHTML = el.innerHTML;
             addClickHandler(slot, el);
-            addCursorChangeHandler(slot); // Add this line
+            addCursorChangeHandler(slot);
         }
         return slot;
     }
