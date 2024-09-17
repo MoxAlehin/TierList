@@ -149,7 +149,12 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             const tierListContainer = tierListWrapper.createEl('div', { cls: 'tier-list-container' });
 
             // For Each Nested List
-            outerOl.findAll('li:has(ol)').forEach(outerLi => {
+            outerOl.findAll(':scope > li').forEach(outerLi => {
+
+                if (outerLi.textContent?.startsWith(settings.settings)) {
+                    return;
+                }
+
                 // Create Row
                 const row = tierListContainer.createEl('div', { cls: 'tier-list-row' });
 
