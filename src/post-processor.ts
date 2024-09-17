@@ -127,6 +127,9 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             handle: '.tier-list-tier',
             group: 'tier-list-rows',
             animation: 150,
+            onMove: (evt) => {
+                return evt.related.querySelector('.tier-list-list-last') === null;
+            },
             onEnd: (evt) => {
                 // Update the underlying Markdown structure here if needed
             }
