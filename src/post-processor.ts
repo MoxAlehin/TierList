@@ -48,8 +48,6 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         const img = el.find('img');
         if (img) {
             slot.appendChild(img.cloneNode(true));
-            addClickHandler(slot, el);
-            addCursorChangeHandler(slot);
         }
         // Check if we have Internal Link
         else if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
@@ -65,8 +63,10 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                             imageSrc = `[](${imageSrc})`
                         await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', this.plugin);
                     }
-                    addClickHandler(slot, el);
-                    addCursorChangeHandler(slot);
+                    else {
+                        const textContainer = slot.createEl('div', { cls: 'text-content' });
+                        textContainer.innerHTML = el.innerHTML;
+                    }
                 }
             }
         }
@@ -79,18 +79,15 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 const img = slot.createEl('img');
                 img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
                 slot.appendChild(img);
-                addClickHandler(slot, el);
-                addCursorChangeHandler(slot);
             }
         }
         // Default is transferring elements from li
         else {
-            el.findAll('div.list-collapse-indicator').forEach(el => el.remove());
             const textContainer = slot.createEl('div', { cls: 'text-content' });
             textContainer.innerHTML = el.innerHTML;
-            addClickHandler(slot, el);
-            addCursorChangeHandler(slot);
         }
+        addClickHandler(slot, el);
+        addCursorChangeHandler(slot);
         return slot;
     }
 
