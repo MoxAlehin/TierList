@@ -15,6 +15,7 @@ export interface TierListSettings {
 	tag: string;
 	containerWidth: number;
 	slotCount: number;
+	settings: string;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	tag: '#tier-list',
 	containerWidth: 70,
 	slotCount: 10,
+	settings: "Settings"
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -115,7 +117,20 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		
+
+		// Settings Name Text
+		new Setting(containerEl)
+			.setName('Settings Name')
+			.setDesc('') //TODO
+			.addText(text => {
+				text
+					.setValue(this.plugin.settings.settings)
+					.onChange(async value => {
+						this.plugin.settings.settings = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
 		// Tier List Container Width Text(Integer)
 		new Setting(containerEl)
 			.setName('Tier List Width')
