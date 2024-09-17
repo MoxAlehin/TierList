@@ -13,22 +13,28 @@ export interface TierListSettings {
 	property: string;
 	unordered: string;
 	tag: string;
-	containerWidth: number;
-	slotCount: number;
+	width: number;
+	slots: number;
 	settings: string;
+	ratio: number;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
 	tiers: [
-		{ name: 'S Tier', color: '#FFD700' },
+		{ name: 'S', color: '#FFD700' },
+		{ name: 'A', color: '#ffbf7f' },
+		{ name: 'B', color: '#ffdf7f' },
+		{ name: 'C', color: '#ffff7f' },
+		{ name: 'D', color: '#bfff7f' },
 	],
 	order: false,
 	property: 'Image',
 	unordered: 'To Rank',
 	tag: '#tier-list',
-	containerWidth: 70,
-	slotCount: 10,
-	settings: "Settings"
+	width: 70,
+	slots: 10,
+	settings: "Settings",
+	ratio: 1,
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -61,8 +67,8 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		// General Header/////////////////////////////////////////////////////////////////////////////////////
-		containerEl.createEl('h1', { text: 'General' });
+		// Default Settings Header/////////////////////////////////////////////////////////////////////////////////////
+		containerEl.createEl('h1', { text: 'Default Settings' });
 
 		// Order Dropdown
 		new Setting(containerEl)
@@ -131,6 +137,23 @@ export class SettingTab extends PluginSettingTab {
 					});
 			});
 
+		// Tier List Slot X/Y Ratio(Float)
+		new Setting(containerEl)
+		.setName('Tier List Slot Width/Height Ratio')
+		.setDesc('') //TODO
+		.addText(text => {
+			// text.inputEl.classList.add('tier-list-number-setting');
+			text
+				.setValue(this.plugin.settings.ratio.toString())
+				.onChange(async value => {
+					if (await this.checkNumber(text, /^\d+\.?\d*$/)) {
+						this.plugin.settings.ratio = Number(text.getValue());
+						this.plugin.saveSettings();
+						this.plugin.resize();
+					}
+				});
+		});
+
 		// Tier List Container Width Text(Integer)
 		new Setting(containerEl)
 			.setName('Tier List Width')
@@ -138,10 +161,10 @@ export class SettingTab extends PluginSettingTab {
 			.addText(text => {
 				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-persentage-setting');
 				text
-					.setValue(this.plugin.settings.containerWidth.toString())
+					.setValue(this.plugin.settings.width.toString())
 					.onChange(async value => {
-						if (await this.checkNumber(text)) {
-							this.plugin.settings.containerWidth = Number(text.getValue());
+						if (await this.checkNumber(text, /^(100|[1-9]?[0-9])$/)) {
+							this.plugin.settings.width = Number(text.getValue());
 							this.plugin.saveSettings();
 							this.plugin.resize();
 						}
@@ -154,10 +177,10 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc('How many slots will be displayed on one row before wrap to next line')
 			.addText(text => {
 				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-pieces-setting');
-				text.setValue(this.plugin.settings.slotCount.toString());
+				text.setValue(this.plugin.settings.slots.toString());
 				text.onChange(async value => {
 					if (await this.checkNumber(text)) {
-						this.plugin.settings.slotCount = Number(text.getValue());
+						this.plugin.settings.slots = Number(text.getValue());
 						this.plugin.saveSettings();
 						this.plugin.resize();
 					}
