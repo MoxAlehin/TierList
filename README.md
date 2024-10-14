@@ -1,96 +1,35 @@
-# Obsidian Sample Plugin
+# Tier List 
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+This plugin allows you to render nested numbered lists as visual Tier Lists, providing an intuitive way to organize, rank, and display items using customizable tiers.
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
+![Games Example](Images/TierList_Example_Games.jpg)
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+One of the core features of the plugin is the ability to render lists with both internal and external images, any markdown text, or covers linked via a file's frontmatter. You can specify an image for a file in the frontmatter using the `Image` key, which will serve as a visual cover for that file in the tier list.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+Additionally, you can navigate back to the original note from its visual representation in the Tier List by using **Ctrl + Left Click** on the file’s cover image or text.
 
-## First time developing plugins?
+![Source](Images/TierList_Source.jpg)
 
-Quick starting guide for new plugin devs:
+Unlike tools like Dataview, where sorting often requires defining custom variables, the Tier List plugin enables manual sorting of list items. This is useful when, for instance, you want to rank movies by genre without assigning them specific numerical ratings. Instead, you can place each movie relative to others, making it easier to say one movie is better than another but worse than a third. The manual nature of this ranking gives more flexibility and avoids the complexity of absolute ratings.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+Using markdown links within a Tier List ensures that all items maintain their relationships in Obsidian’s Graph View. This keeps the graph clean and organized while still connecting your notes through the Tier List file.
 
-## Releasing new releases
+![Local Graph](Images/TierList_LocalGraph.jpg)
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+To use the Tier List plugin, you can either insert the `#TierList` tag anywhere within a numbered list, which marks the list for tier rendering, or use the command `Insert Tier List` to automatically create a list preformatted for ranking.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+Tier List also includes a “To Rank” section, where items that have not yet been placed in a specific tier will be shown. This section collapses automatically once it becomes empty, keeping the view clean and focused on ranked items.
 
-## Adding your plugin to the community plugin list
+![How To Use](Images/TierList_HowToUse.gif)
 
-- Check https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+*The plugin currently does not support drag-and-drop functionality at the backend level. This means that if you rearrange elements in the reading view, it will not affect the actual structure of the file itself. Any changes made in reading view will not be saved to the markdown file.*
 
-## How to use
+## Settings
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+The plugin provides several customization options. You can define default settings for all Tier Lists globally, but you can also override these settings on a per-list basis. To do so, create a `Settings` section in the list and use `key: value` pairs to adjust available parameters.
 
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
-
-If you have multiple URLs, you can also do:
-
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
-
-## API Documentation
-
-See https://github.com/obsidianmd/obsidian-api
+| Parameter | Description                                                |
+| --------- | ---------------------------------------------------------- |
+| Ratio     | Aspect ratio of the slot                                   |
+| Width     | Width of the Tier List as a percentage of the display size |
+| Slots     | Number of slots per row                                    |
