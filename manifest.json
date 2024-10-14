@@ -1,11 +1,10 @@
 {
 	"id": "tier-list",
 	"name": "Tier List",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Creates cool Tier Lists.",
+	"description": "Allows you to visually rank and organize content into customizable Tier Lists",
 	"author": "Mox Alehin",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"authorUrl": "https://github.com/MoxAlehin",
 	"isDesktopOnly": true
 }
