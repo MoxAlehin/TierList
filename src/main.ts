@@ -6,7 +6,6 @@ import { insertTierListCommand } from 'commands'
 export default class TierListPlugin extends Plugin {
 	settings: TierListSettings;
 	async onload() {
-		console.clear();
 		await this.loadSettings();
 		this.addSettingTab(new SettingTab(this.app, this));
 		this.registerMarkdownPostProcessor(generateTierListMarkdownPostProcessor(this.app, this.settings));

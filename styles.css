@@ -90,6 +90,10 @@
     overflow: hidden; /* Отключение прокрутки */
 }
 
+.help-cursor {
+    cursor: help !important;
+}
+
 /* Settings Tab */
 
 .tier-list-number-setting {

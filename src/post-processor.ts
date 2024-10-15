@@ -65,7 +65,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     }
                     else {
                         const textContainer = slot.createEl('div', { cls: 'text-content' });
-                        textContainer.innerHTML = el.innerHTML;
+                        textContainer.appendChild(el.cloneNode(true));
                     }
                 }
             }
@@ -84,7 +84,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         // Default is transferring elements from li
         else {
             const textContainer = slot.createEl('div', { cls: 'text-content' });
-            textContainer.innerHTML = el.innerHTML;
+            textContainer.appendChild(el.cloneNode(true));
         }
         addClickHandler(slot, el);
         addCursorChangeHandler(slot);
@@ -94,19 +94,19 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
     function addCursorChangeHandler(slot: HTMLElement) {
         slot.addEventListener('mouseover', (event: MouseEvent) => {
             if (event.ctrlKey) {
-                slot.style.cursor = 'help';
+                slot.classList.add('help-cursor');
             }
         });
     
         slot.addEventListener('mouseout', (event: MouseEvent) => {
-            slot.style.cursor = 'default';
+            slot.classList.remove('help-cursor');
         });
     
         slot.addEventListener('mousemove', (event: MouseEvent) => {
             if (event.ctrlKey) {
-                slot.style.cursor = 'help';
+                slot.classList.add('help-cursor');
             } else {
-                slot.style.cursor = 'default';
+                slot.classList.remove('help-cursor');
             }
         });
     }
