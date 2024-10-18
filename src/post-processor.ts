@@ -43,14 +43,10 @@ function isLightColor(hex: string): boolean {
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
     async function renderSlot(parent: HTMLElement, el: HTMLElement): Promise<HTMLElement> {
         const slot = parent.createEl('div', { cls: 'tier-list-slot' });
-    
-        // Check if we have embedded image
-        const img = el.find('img');
-        if (img) {
-            slot.appendChild(img.cloneNode(true));
-        }
-        // Check if we have Internal Link
-        else if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+
+        // Check for internal-embed span and replace with img
+        let isDefault: boolean = true;
+        if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
             const link = el.find('a.internal-link');
             const filePath = link.getAttribute('href');
             if (filePath) {
@@ -62,30 +58,17 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                         if (imageSrc.match('http'))
                             imageSrc = `[](${imageSrc})`
                         await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', this.plugin);
-                    }
-                    else {
-                        const textContainer = slot.createEl('div', { cls: 'text-content' });
-                        textContainer.appendChild(el.cloneNode(true));
+                        isDefault = false;
                     }
                 }
             }
         }
-        // Check for internal-embed span and replace with img
-        else if (el.find('span.internal-embed')) {
-            const embedSpan = el.find('span.internal-embed');
-            const imageSrc = embedSpan.getAttribute('src');
-            const internalImageFile = app.metadataCache.getFirstLinkpathDest(imageSrc || '', '');
-            if (imageSrc && internalImageFile) {
-                const img = slot.createEl('img');
-                img.setAttribute('src', app.vault.getResourcePath(internalImageFile));
-                slot.appendChild(img);
-            }
+
+        if (isDefault) {
+            // slot.appendChild(el.cloneNode(true));
+            await MarkdownRenderer.render(app, el.outerHTML, slot, '', this.plugin);
         }
-        // Default is transferring elements from li
-        else {
-            const textContainer = slot.createEl('div', { cls: 'text-content' });
-            textContainer.appendChild(el.cloneNode(true));
-        }
+    
         addClickHandler(slot, el);
         addCursorChangeHandler(slot);
         return slot;
@@ -112,6 +95,8 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
     }
 
     function addClickHandler(slot: HTMLElement, el: HTMLElement) {
+        if (el.find('.excalidraw-embedded-img'))
+            return;
         slot.addEventListener('click', (event: MouseEvent) => {
             if (event.ctrlKey) {
                 const link = el.find('a.internal-link, a.external-link');
@@ -247,7 +232,9 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     tier = row.createEl('div', { cls: 'tier-list-tier' });
                     list = row.createEl('div', { cls: 'tier-list-list' });
 
-                    const matchedTier = settings.tiers.find(tier => outerLi.textContent?.startsWith(tier.name));
+                    // const matchedTier = settings.tiers.find(tier => outerLi.textContent?.startsWith(`${tier.name}`));
+                    const matchedTier = settings.tiers.find(tier => new RegExp(`^${tier.name}(\\n|$)`, 'm').test(outerLi.textContent || ''));
+                    console.log(outerLi.textContent)
                     if (matchedTier) {
                         const textColor = isLightColor(matchedTier.color) ? '#000000' : '#FFFFFF';
                         tier.style.setProperty('background-color', `${matchedTier.color}`);
