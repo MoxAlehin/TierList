@@ -65,8 +65,9 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         }
 
         if (isDefault) {
-            slot.appendChild(el);
-            // await MarkdownRenderer.render(app, el.outerHTML, slot, '', this.plugin);
+            // Only works after full vault reload
+            // slot.appendChild(el);
+            await MarkdownRenderer.render(app, el.outerHTML, slot, '', this.plugin);
         }
     
         addClickHandler(slot, el);
