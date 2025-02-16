@@ -1,26 +1,28 @@
 ---
-Image: "[[Image.jpg]]"
+Image: https://img.freepik.com/free-photo/bright-neon-colors-shining-wild-chameleon_23-2151682815.jpg
 ---
 
-1. S
-	1. Loooooooooooooooooooooooooooooooooooooooooooooooong
-	2. ==text text text text text text text text text text text text text text text text==
-	3. **Text** `Text` *Text*
-2. B
-	1. ![External Image](https://howlongtobeat.com/games/44590_Prey_(2017).jpg)
-	2. [[Internal Cover Note]] 
-	3. [[External Cover Note]]
-	4. [[Example | This File Cover]]
-	5. ![[Internal File]]
-	6. ![[Image.jpg | Internal Image]]
-	7. ![[SpaceSniffer.exe | Executable file]]
-3. C
-4. To Rank
-	1. [[Excalidraw Cover Note]]
-	2. ![[Excalidraw Drawing#^group=iWuuktGAlvz1_eYeG1KEA]]
-5. Settings #TierList
-	1. Ratio: 1
-	2. Width: 50
-	3. Slots: 6
-
-
+- ![](https://static.wikia.nocookie.net/the-canny-incredible/images/5/50/Phase_5.png/revision/latest?cb=20230830134900)
+	- [[Gif Cover Note]]
+	- ![Gif](https://i.imgur.com/OciHCvJ.gif)
+-  ![](https://static.wikia.nocookie.net/the-canny-incredible/images/b/b1/Phase_4.png/revision/latest/thumbnail/width/360/height/360?cb=20230830134830)
+	-  [[Excalidraw Cover Note]]
+	-  ![[Excalidraw Drawing#^group=iWuuktGAlvz1_eYeG1KEA]]
+-   ![](https://static.wikia.nocookie.net/the-canny-incredible/images/e/e7/Phase_3.jpeg/revision/latest?cb=20230830134722)
+	-  [[External Cover Note]]
+	-  ![External Image](https://howlongtobeat.com/games/44590_Prey_(2017).jpg)
+	-  [[Examples | This File Cover]]
+	- ![[Image.jpg | Internal Image]]
+	- [[Internal Cover Note]]
+-  ![](https://static.wikia.nocookie.net/the-canny-incredible/images/b/b0/Phase_1_old.webp/revision/latest?cb=20231217153841)
+	-  ![[SpaceSniffer.exe | Executable file]]
+	-  ![[Internal File]]
+-  ![](https://static.wikia.nocookie.net/the-uncanny-incredible/images/a/ab/Image_phase_3_mr_incredible_becoming_uncanny_by_abbysek_dex8lji-fullview.jpg/revision/latest?cb=20240731035318)
+	-  ==text text text text text text text text text text text text text text text text==
+	-  Loooooooooooooooooooooooooooooooooooooooooooooooong
+	-  **Text** `Text` *Text*
+-  To Rank
+-  Settings #tier-list 
+	- Ratio: 1
+	- Width: 60
+	- Slots: 7

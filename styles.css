@@ -1,4 +1,5 @@
-.tier-list-container-wrapper {
+/* Wrapper container */
+.tier-list {
     position: relative;
     width: 100vw;
     left: 50%;
@@ -11,7 +12,7 @@
     list-style: none;
 }
 
-.tier-list-container {
+.tier-list > ul {
     font-size: 0.7em;
     background-color: var(--background-modifier-border);  
     display: inline-block;
@@ -19,39 +20,37 @@
     --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
 }
 
-.tier-list-container .collapse-indicator {
-    visibility: collapse;
+.tier-list .unordered {
+    width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 2 * var(--tier-list-indent)));
+    min-height: 1em;
+    padding: 0px 1px; 
 }
 
-.tier-list-row {
+.tier-list > ul > li {
     margin: var(--tier-list-indent);
     background-color: var(--background-modifier-border);
     display: flex;
     align-items: stretch;
     gap: var(--tier-list-indent);
+    padding: 0px !important;
 }
 
-.tier-list-tier {
-    background-color: var(--background-secondary);
-    width: var(--tier-list-slot-width);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.tier-list-list {
+/* List without header */
+.tier-list > ul > li > ul {
     display: flex;
     flex-wrap: wrap;
     background-color: var(--background-primary);
     width: calc(var(--tier-list-slot-width) * var(--tier-list-slot-count));
 }
 
-.tier-list-list-last {
-    width: 100%;
-    min-height: 1em;
+.tier-list > ul > li > ul::before,
+.tier-list > ul > li > ul::after {
+    display: none !important;
 }
 
-.tier-list-slot {
+/* Slot */
+.tier-list > ul > li > ul > li,
+.tier-list > ul > li > div {
     width: var(--tier-list-slot-width);
     max-width: var(--tier-list-slot-width);
     height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
@@ -69,7 +68,12 @@
     word-break: break-word;
 }
 
-.tier-list-slot img {
+.tier-list > ul > li > ul > li {
+    background-color: var(--background-secondary);
+    overflow: hidden; /* Отключение прокрутки */
+}
+
+.tier-list img {
     margin: 0;
     padding: 0;
     display: block;
@@ -82,15 +86,10 @@
     border-radius: 0px !important;
 }
 
-.tier-list-slot:not(:has(img)) {
+.tier-list > ul > li > ul > li:not(:has(img)) {
     padding: 0.5em; /* Добавляем отступы только для текста */
     z-index: 1; /* Устанавливаем текст выше изображения */
     position: relative;
-}
-
-.tier-list-list .tier-list-slot {
-    background-color: var(--background-secondary);
-    overflow: hidden; /* Отключение прокрутки */
 }
 
 .help-cursor {

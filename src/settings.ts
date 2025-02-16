@@ -71,19 +71,19 @@ export class SettingTab extends PluginSettingTab {
 		containerEl.createEl('h1', { text: 'Default Settings' });
 
 		// Order Dropdown
-		new Setting(containerEl)
-			.setName('Order')
-			.addDropdown(dropdown => {
-				dropdown
-					.addOption('true', 'Right - First, Left - Last')
-					.addOption('false', 'Left - First, Right - Last')
-					.setValue(String(this.plugin.settings.order))
-					.onChange(async (value) => {
-						this.plugin.settings.order = value === 'true';
-						this.display();
-						await this.plugin.saveSettings();
-					});
-			});
+		// new Setting(containerEl)
+		// 	.setName('Order')
+		// 	.addDropdown(dropdown => {
+		// 		dropdown
+		// 			.addOption('true', 'Right - First, Left - Last')
+		// 			.addOption('false', 'Left - First, Right - Last')
+		// 			.setValue(String(this.plugin.settings.order))
+		// 			.onChange(async (value) => {
+		// 				this.plugin.settings.order = value === 'true';
+		// 				this.display();
+		// 				await this.plugin.saveSettings();
+		// 			});
+		// 	});
 
 		// Image Name Text
 		new Setting(containerEl)
@@ -149,7 +149,6 @@ export class SettingTab extends PluginSettingTab {
 					if (await this.checkNumber(text, /^\d+\.?\d*$/)) {
 						this.plugin.settings.ratio = Number(text.getValue());
 						this.plugin.saveSettings();
-						this.plugin.resize();
 					}
 				});
 		});
@@ -166,7 +165,6 @@ export class SettingTab extends PluginSettingTab {
 						if (await this.checkNumber(text, /^(100|[1-9]?[0-9])$/)) {
 							this.plugin.settings.width = Number(text.getValue());
 							this.plugin.saveSettings();
-							this.plugin.resize();
 						}
 					});
 			});
@@ -182,7 +180,6 @@ export class SettingTab extends PluginSettingTab {
 					if (await this.checkNumber(text)) {
 						this.plugin.settings.slots = Number(text.getValue());
 						this.plugin.saveSettings();
-						this.plugin.resize();
 					}
 				});
 			});
@@ -190,7 +187,7 @@ export class SettingTab extends PluginSettingTab {
 		// Default Tiers Header/////////////////////////////////////////////////////////////////////////////////////
 		containerEl.createEl('h1', { text: 'Default Tiers' });
 
-		const tierListEl = containerEl.createEl('div', { cls: 'tier-list' });
+		const tierListEl = containerEl.createEl('div', { cls: 'tier-lists' });
 
 		this.plugin.settings.tiers.forEach((tier, index) => {
 			const tierEl = tierListEl.createEl('div', { cls: 'tier-item', attr: { 'data-index': index.toString() } });

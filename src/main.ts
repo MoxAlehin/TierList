@@ -8,7 +8,7 @@ export default class TierListPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new SettingTab(this.app, this));
-		this.registerMarkdownPostProcessor(generateTierListMarkdownPostProcessor(this.app, this.settings));
+		this.registerMarkdownPostProcessor(generateTierListMarkdownPostProcessor(this.app, this.settings, this));
 		this.addCommand(insertTierListCommand(this.settings));
 		this.resize();
 	}
@@ -19,6 +19,7 @@ export default class TierListPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		this.resize();
 	}
 
 	resize() {
