@@ -1,7 +1,7 @@
 {
 	"name": "tier-list",
-	"version": "0.1.0",
-	"description": "Allows you to visually rank and organize content into customizable Tier Lists",
+	"version": "0.1.1",
+	"description": "Visual ranking and organizing content into customizable Tier Lists",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
