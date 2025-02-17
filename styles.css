@@ -54,8 +54,8 @@
     width: var(--tier-list-slot-width);
     max-width: var(--tier-list-slot-width);
     height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
-    max-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
-    /* background-color: var(--background-secondary); */
+    /* max-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio)); */
+    background-color: var(--background-secondary);
     overflow: hidden; /* Отключение прокрутки */
     text-align: center;
     position: relative;
@@ -68,9 +68,9 @@
     word-break: break-word;
 }
 
-.tier-list > ul > li > ul > li {
-    background-color: var(--background-secondary);
-    overflow: hidden; /* Отключение прокрутки */
+.tier-list > ul > li > div {
+    height: inherit;
+    min-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
 }
 
 .tier-list img {
@@ -86,7 +86,8 @@
     border-radius: 0px !important;
 }
 
-.tier-list > ul > li > ul > li:not(:has(img)) {
+.tier-list > ul > li > ul > li:not(:has(img)),
+.tier-list > ul > li > div:not(:has(img)) {
     padding: 0.5em; /* Добавляем отступы только для текста */
     z-index: 1; /* Устанавливаем текст выше изображения */
     position: relative;
