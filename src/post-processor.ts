@@ -3,7 +3,7 @@ import {
     MarkdownPostProcessorContext,
     MarkdownRenderer,
     Component,
-    TFile
+    Menu
 } from 'obsidian';
 import Sortable from 'sortablejs';
 import { SlotModal } from 'modal';
@@ -16,103 +16,117 @@ export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--tier-list-aspect-ratio', `${settings.ratio}`);
 }
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-    hex = hex.replace(/^#/, '');
+function findDataLine(el: HTMLElement): number {
+    let closestLineElement: HTMLElement | null = null;
+    let farthestLineElement: HTMLElement | null = null;
+    let current: HTMLElement | null = el;
 
-    let bigint;
-    if (hex.length === 3) {
-        bigint = parseInt(hex.split('').map(char => char + char).join(''), 16);
-    } else if (hex.length === 6) {
-        bigint = parseInt(hex, 16);
-    } else {
-        return null;
+    while (current) {
+        if (current.hasAttribute("data-line")) {
+            if (!closestLineElement) {
+                closestLineElement = current;
+            }
+            farthestLineElement = current;
+        }
+        current = current.parentElement;
     }
 
-    return {
-        r: (bigint >> 16) & 255,
-        g: (bigint >> 8) & 255,
-        b: bigint & 255
-    };
-}
-
-function isLightColor(hex: string): boolean {
-    const rgb = hexToRgb(hex);
-    if (!rgb) return false;
-
-    const brightness = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
-    return brightness > 150;
-}
-
-async function moveLinesInActiveFile(startIndex: number, count: number, newIndex: number, correction: boolean = true) {
-    const file = app.workspace.getActiveFile();
-    if (!file || startIndex == newIndex) {
-        return;
+    if (closestLineElement && farthestLineElement) {
+        const closestValue = parseInt(closestLineElement.getAttribute("data-line") || "0", 10);
+        const farthestValue = parseInt(farthestLineElement.getAttribute("data-line") || "0", 10);
+        return closestLineElement === farthestLineElement ? closestValue : closestValue + farthestValue;
     }
 
-    let content = await app.vault.read(file);
-    let lines = content.split("\n");
-
-    if (startIndex < 0 || startIndex >= lines.length || count <= 0 || startIndex + count > lines.length || newIndex < 0 || newIndex > lines.length) {
-        return;
-    }
-
-    const removedLines = lines.splice(startIndex, count);
-
-    if (newIndex > startIndex && correction) {
-        newIndex -= count;
-    }
-
-    lines.splice(newIndex, 0, ...removedLines);
-
-    await app.vault.modify(file, lines.join("\n"));
-}
-
-async function replaceLineInActiveFile(lineNumber: number, newText: string) {
-    const activeFile = app.workspace.getActiveFile();
-    if (!activeFile) return;
-
-    const fileContent = await app.vault.read(activeFile);
-    const lines = fileContent.split("\n");
-
-    if (lineNumber < 0 || lineNumber >= lines.length) {
-        return;
-    }
-
-    lines[lineNumber] = newText;
-
-    await app.vault.modify(activeFile, lines.join("\n"));
-}
-
-async function readLineFromActiveFile(lineNumber: number): Promise<string | null> {
-    const activeFile = app.workspace.getActiveFile();
-    if (!activeFile) return null;
-
-    const fileContent = await app.vault.read(activeFile);
-    const lines = fileContent.split("\n");
-
-    if (lineNumber < 0 || lineNumber >= lines.length) {
-        console.error("Номер строки выходит за границы файла");
-        return null;
-    }
-
-    return lines[lineNumber];
-}
-
-async function deleteLineInActiveFile(lineNumber: number) {
-    const activeFile = app.workspace.getActiveFile();
-    if (!activeFile) return;
-
-    const content = await app.vault.read(activeFile);
-    const lines = content.split("\n");
-
-    if (lineNumber < 0 || lineNumber >= lines.length) return; // Проверка границ
-
-    lines.splice(lineNumber, 1); // Удаляем строку
-
-    await app.vault.modify(activeFile, lines.join("\n")); // Записываем обратно
+    return 0;
 }
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings, component: Component): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
+    async function moveLinesInActiveFile(startIndex: number, count: number, newIndex: number, correction: boolean = true) {
+        const file = app.workspace.getActiveFile();
+        if (!file || startIndex == newIndex) {
+            return;
+        }
+    
+        let content = await app.vault.read(file);
+        let lines = content.split("\n");
+    
+        if (startIndex < 0 || startIndex >= lines.length || count <= 0 || startIndex + count > lines.length || newIndex < 0 || newIndex > lines.length) {
+            return;
+        }
+    
+        const removedLines = lines.splice(startIndex, count);
+    
+        if (newIndex > startIndex && correction) {
+            newIndex -= count;
+        }
+    
+        lines.splice(newIndex, 0, ...removedLines);
+    
+        await app.vault.modify(file, lines.join("\n"));
+    }
+    
+    async function replaceLineInActiveFile(lineNumber: number, newText: string) {
+        const activeFile = app.workspace.getActiveFile();
+        if (!activeFile) return;
+    
+        const fileContent = await app.vault.read(activeFile);
+        const lines = fileContent.split("\n");
+    
+        if (lineNumber < 0 || lineNumber >= lines.length) {
+            return;
+        }
+    
+        lines[lineNumber] = newText;
+    
+        await app.vault.modify(activeFile, lines.join("\n"));
+    }
+    
+    async function readLineFromActiveFile(lineNumber: number): Promise<string | null> {
+        const activeFile = app.workspace.getActiveFile();
+        if (!activeFile) return null;
+    
+        const fileContent = await app.vault.read(activeFile);
+        const lines = fileContent.split("\n");
+    
+        if (lineNumber < 0 || lineNumber >= lines.length) {
+            console.error("Номер строки выходит за границы файла");
+            return null;
+        }
+    
+        return lines[lineNumber];
+    }
+    
+    async function deleteLineInActiveFile(lineNumber: number) {
+        const activeFile = app.workspace.getActiveFile();
+        if (!activeFile) return;
+    
+        const content = await app.vault.read(activeFile);
+        const lines = content.split("\n");
+    
+        if (lineNumber < 0 || lineNumber >= lines.length) return; // Проверка границ
+    
+        lines.splice(lineNumber, 1); // Удаляем строку
+    
+        await app.vault.modify(activeFile, lines.join("\n")); // Записываем обратно
+    }
+
+    async function insertLineInActiveFile(lineNumber: number, newText: string) {
+        const activeFile = app.workspace.getActiveFile();
+        if (!activeFile) return;
+    
+        const fileContent = await app.vault.read(activeFile);
+        const lines = fileContent.split("\n");
+    
+        // Ограничиваем lineNumber, чтобы он был в пределах допустимого диапазона
+        const index = Math.max(0, Math.min(lineNumber, lines.length));
+    
+        // Вставляем строку в нужное место
+        lines.splice(index, 0, newText);
+    
+        // Записываем обновлённый контент обратно в файл
+        await app.vault.modify(activeFile, lines.join("\n"));
+    }
+    
     async function renderSlot(el: HTMLElement): Promise<HTMLElement> {
         const parent = el.parentElement || document.documentElement;
 
@@ -134,6 +148,34 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 }
             }
         }
+
+        el.addEventListener("contextmenu", async (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            const menu = new Menu();
+            const line = findDataLine(el);
+            const str = await readLineFromActiveFile(line);
+    
+            menu.addItem((item) => item.setTitle("Add Slot").setIcon("square-plus").onClick(() => {
+                new SlotModal(app, "Add Slot", "\t", (result) => {
+                    if (result != "")
+                        insertLineInActiveFile(line, result);
+                }).open();
+            }));
+            menu.addItem((item) => item.setTitle("Edit Slot").setIcon("pencil").onClick(() => {
+                new SlotModal(app, "Change Slot", str || "0", (result) => {
+                    if (result != "")
+                        replaceLineInActiveFile(line, result);
+                    else
+                        deleteLineInActiveFile(line);
+                }).open();
+            }));
+            menu.addItem((item) => item.setTitle("Delete Slot").setIcon("trash-2").onClick(() => {
+                deleteLineInActiveFile(line);
+            }));
+
+            menu.showAtPosition({ x: evt.clientX, y: evt.clientY });
+        })
     
         addClickHandler(el, el);
         addCursorChangeHandler(el);
@@ -164,6 +206,8 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         if (el.find('.excalidraw-embedded-img'))
             return;
         slot.addEventListener('click', (event: MouseEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
             if (event.ctrlKey) {
                 const link = el.find('a.internal-link, a.external-link');
                 if (link) {
@@ -189,7 +233,9 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 }
             }
         });
-        slot.addEventListener("dblclick", async () => {
+        slot.addEventListener("dblclick", async (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
             let line;
             if (slot instanceof HTMLDivElement) {
                 const parentLine = parseInt(slot.parentElement?.parentElement?.parentElement?.getAttribute("data-line") || "0");
@@ -376,6 +422,22 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
 
         el.findAll(":scope > ul > li > ul > li").forEach( li => {
             renderSlot(li);
+        })
+
+        el.findAll(":scope > ul > li > ul").forEach(list => {
+            list.addEventListener("contextmenu", async (evt) => {
+                evt.preventDefault();
+                const menu = new Menu();
+                const line = findDataLine(list) + list.children.length + 1;
+        
+                menu.addItem((item) => item.setTitle("Add Slot").setIcon("square-plus").onClick(() => {
+                    new SlotModal(app, "Add Slot", "\t", (result) => {
+                        if (result != "")
+                            insertLineInActiveFile(line, result);
+                    }).open();
+                }));
+                menu.showAtPosition({ x: evt.clientX, y: evt.clientY });
+            })
         })
 
         initializeSortableSlots(el);
