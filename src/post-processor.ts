@@ -7,7 +7,7 @@ import {
 } from 'obsidian';
 import Sortable from 'sortablejs';
 import {moveLinesInActiveFile, replaceLineInActiveFile, readLineFromActiveFile, deleteLineInActiveFile, insertLineInActiveFile} from 'file-utils';
-import { SlotModal } from 'modal';
+import { SlotModal } from 'slot-modal';
 import { DataviewSearchModal } from 'request-modal'
 import { TierListSettings, setSetting } from 'settings';
 
