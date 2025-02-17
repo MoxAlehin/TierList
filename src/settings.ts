@@ -18,6 +18,8 @@ export interface TierListSettings {
 	settings: string;
 	ratio: number;
 	animation: number;
+	from: string;
+	where: string;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -37,7 +39,29 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	settings: "Settings",
 	ratio: 1,
 	animation: 150,
+	from: '""',
+	where: "",
 };
+
+export function setSetting(key: string, value: string, settings: TierListSettings) {
+	key = key.toLowerCase();
+	const type = typeof settings[key as keyof TierListSettings];
+	let val;
+
+	switch (type) {
+        case "boolean":
+            val = value.toLowerCase() === "true";
+			break;
+        case "number":
+            val = value.includes(".") ? parseFloat(value) : parseInt(value);
+			break;
+        case "string":
+            val = value;
+			break;
+    }
+
+	(settings[key as keyof TierListSettings] as any) = val;
+}
 
 export class SettingTab extends PluginSettingTab {
 	plugin: TierListPlugin;

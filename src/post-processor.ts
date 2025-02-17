@@ -6,8 +6,10 @@ import {
     Menu
 } from 'obsidian';
 import Sortable from 'sortablejs';
+import {moveLinesInActiveFile, replaceLineInActiveFile, readLineFromActiveFile, deleteLineInActiveFile, insertLineInActiveFile} from 'file-utils';
 import { SlotModal } from 'modal';
-import { TierListSettings } from 'settings';
+import { DataviewSearchModal } from 'request-modal'
+import { TierListSettings, setSetting } from 'settings';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--tier-list-width-ratio', `${settings.width / 100}`);
@@ -41,92 +43,6 @@ function findDataLine(el: HTMLElement): number {
 }
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings, component: Component): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
-    async function moveLinesInActiveFile(startIndex: number, count: number, newIndex: number, correction: boolean = true) {
-        const file = app.workspace.getActiveFile();
-        if (!file || startIndex == newIndex) {
-            return;
-        }
-    
-        let content = await app.vault.read(file);
-        let lines = content.split("\n");
-    
-        if (startIndex < 0 || startIndex >= lines.length || count <= 0 || startIndex + count > lines.length || newIndex < 0 || newIndex > lines.length) {
-            return;
-        }
-    
-        const removedLines = lines.splice(startIndex, count);
-    
-        if (newIndex > startIndex && correction) {
-            newIndex -= count;
-        }
-    
-        lines.splice(newIndex, 0, ...removedLines);
-    
-        await app.vault.modify(file, lines.join("\n"));
-    }
-    
-    async function replaceLineInActiveFile(lineNumber: number, newText: string) {
-        const activeFile = app.workspace.getActiveFile();
-        if (!activeFile) return;
-    
-        const fileContent = await app.vault.read(activeFile);
-        const lines = fileContent.split("\n");
-    
-        if (lineNumber < 0 || lineNumber >= lines.length) {
-            return;
-        }
-    
-        lines[lineNumber] = newText;
-    
-        await app.vault.modify(activeFile, lines.join("\n"));
-    }
-    
-    async function readLineFromActiveFile(lineNumber: number): Promise<string | null> {
-        const activeFile = app.workspace.getActiveFile();
-        if (!activeFile) return null;
-    
-        const fileContent = await app.vault.read(activeFile);
-        const lines = fileContent.split("\n");
-    
-        if (lineNumber < 0 || lineNumber >= lines.length) {
-            console.error("Номер строки выходит за границы файла");
-            return null;
-        }
-    
-        return lines[lineNumber];
-    }
-    
-    async function deleteLineInActiveFile(lineNumber: number) {
-        const activeFile = app.workspace.getActiveFile();
-        if (!activeFile) return;
-    
-        const content = await app.vault.read(activeFile);
-        const lines = content.split("\n");
-    
-        if (lineNumber < 0 || lineNumber >= lines.length) return; // Проверка границ
-    
-        lines.splice(lineNumber, 1); // Удаляем строку
-    
-        await app.vault.modify(activeFile, lines.join("\n")); // Записываем обратно
-    }
-
-    async function insertLineInActiveFile(lineNumber: number, newText: string) {
-        const activeFile = app.workspace.getActiveFile();
-        if (!activeFile) return;
-    
-        const fileContent = await app.vault.read(activeFile);
-        const lines = fileContent.split("\n");
-    
-        // Ограничиваем lineNumber, чтобы он был в пределах допустимого диапазона
-        const index = Math.max(0, Math.min(lineNumber, lines.length));
-    
-        // Вставляем строку в нужное место
-        lines.splice(index, 0, newText);
-    
-        // Записываем обновлённый контент обратно в файл
-        await app.vault.modify(activeFile, lines.join("\n"));
-    }
-    
     async function renderSlot(el: HTMLElement): Promise<HTMLElement> {
         const parent = el.parentElement || document.documentElement;
 
@@ -154,26 +70,8 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             evt.stopPropagation();
             const menu = new Menu();
             const line = findDataLine(el);
-            const str = await readLineFromActiveFile(line);
-    
-            menu.addItem((item) => item.setTitle("Add Slot").setIcon("square-plus").onClick(() => {
-                new SlotModal(app, "Add Slot", "\t", (result) => {
-                    if (result != "")
-                        insertLineInActiveFile(line, result);
-                }).open();
-            }));
-            menu.addItem((item) => item.setTitle("Edit Slot").setIcon("pencil").onClick(() => {
-                new SlotModal(app, "Change Slot", str || "0", (result) => {
-                    if (result != "")
-                        replaceLineInActiveFile(line, result);
-                    else
-                        deleteLineInActiveFile(line);
-                }).open();
-            }));
-            menu.addItem((item) => item.setTitle("Delete Slot").setIcon("trash-2").onClick(() => {
-                deleteLineInActiveFile(line);
-            }));
-
+            await addSlotContextMenuOptions(menu, line);
+            // addListContextMenuOptions(menu, line);
             menu.showAtPosition({ x: evt.clientX, y: evt.clientY });
         })
     
@@ -246,19 +144,50 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 line = parseInt(slot.getAttr("data-line") || "0") + parentLine;
             }
             
-            const str = await readLineFromActiveFile(line);
+            const str = await readLineFromActiveFile(app, line);
             new SlotModal(app, "Change Slot", str || "0", (result) => {
                 if (result != "")
-                    replaceLineInActiveFile(line, result);
+                    replaceLineInActiveFile(app, line, result);
                 else
-                    deleteLineInActiveFile(line);
+                    deleteLineInActiveFile(app, line);
             }).open();
         })
     }
 
-    function initializeSortableSlots(tierListContainer: HTMLElement) {
-        // Initialize Sortable for all tier-list-list elements
-        tierListContainer.querySelectorAll('ul > li > ul').forEach(list => {
+    function addListContextMenuOptions(menu: Menu, line: number) {
+        menu.addItem((item) => item.setTitle("Add Slot").setIcon("square-plus").onClick(() => {
+            new SlotModal(app, "Add Slot", "\t", (result) => {
+                if (result != "")
+                    insertLineInActiveFile(app, line, result);
+            }).open();
+        }));
+        menu.addItem((item) => item.setTitle("Request Complete").setIcon("database").onClick(() => {
+            new DataviewSearchModal(app, "", "", (files, from, where) => {
+                // console.log("Selected files:", files);
+
+            }).open();
+        }));
+    }
+
+    async function addSlotContextMenuOptions(menu: Menu, line: number) {
+        const str = await readLineFromActiveFile(app, line);
+        menu.addItem((item) => item.setTitle("Edit Slot").setIcon("pencil").onClick(() => {
+            new SlotModal(app, "Change Slot", str || "0", (result) => {
+                if (result != "")
+                    replaceLineInActiveFile(app, line, result);
+                else
+                    deleteLineInActiveFile(app, line);
+            }).open();
+        }));
+        menu.addItem((item) => item.setTitle("Delete Slot").setIcon("trash-2").onClick(() => {
+            deleteLineInActiveFile(app, line);
+        }));
+        addListContextMenuOptions(menu, line);
+    }
+
+    function initializeSlots(tierListContainer: HTMLElement) {
+        // Initialize Sortable for all Slots elements
+        tierListContainer.findAll('ul > li > ul').forEach(list => {
             Sortable.create(list as HTMLElement, {
                 group: 'slot',
                 animation: settings.animation,
@@ -274,13 +203,24 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     if (oldLine < newLine && oldParentIndex == parentLine)
                         newLine = newLine + 1;
 
-                    moveLinesInActiveFile(oldLine, 1, newLine);
+                    moveLinesInActiveFile(app, oldLine, 1, newLine);
                 }
             });
+            // Add Context Menu for lists
+            list.addEventListener("contextmenu", async (evt) => {
+                evt.preventDefault();
+                const menu = new Menu();
+                const line = findDataLine(list) + list.children.length + 1;
+                addListContextMenuOptions(menu, line);
+                menu.showAtPosition({ x: evt.clientX, y: evt.clientY });
+            })
+            list.findAll("li").forEach(list => {
+                renderSlot(list);
+            })
         });
     }
 
-    function initializeSortableRows(tierListContainer: HTMLElement) {
+    function initializeRows(tierListContainer: HTMLElement) {
         Sortable.create(tierListContainer.find(":scope > ul"), {
             handle: 'ul > li > div',
             group: 'tier',
@@ -308,32 +248,15 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     newLine = newLine + oldChildLength - length;
                 }
 
-                moveLinesInActiveFile(oldLine, length, newLine, false);
+                moveLinesInActiveFile(app, oldLine, length, newLine, false);
             }
         });
+
+
+
     }
 
-    return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-
-        const tagEl: HTMLElement = el.find(`a[href="${settings.tag}"]`);
-        if (!tagEl) 
-            return;
-        tagEl.remove();
-
-        if (ctx.getSectionInfo(el)) {
-            el.setAttr("data-line", ctx.getSectionInfo(el)?.lineStart || 0);
-        }
-        
-        el.addClass("tier-list");   
-
-        el.findAll(".list-bullet").forEach(span => span.remove());
-        el.findAll(".list-collapse-indicator").forEach(span => span.remove());
-
-        el.findAll(":scope > ul > li:not(:has(ul))").forEach(list => {
-            const newul = document.createElement("ul");
-            list.appendChild(newul);
-        })
-
+    function initializeTierSlots(el: HTMLElement, localSettings: TierListSettings) {
         el.findAll(":scope > ul > li").forEach(li => {
 
             let text: string = "";
@@ -341,54 +264,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             li.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
                     if (node.nodeValue?.contains(settings.settings)) {
-                        li.remove();
-                        
-                        const pairs: { [key: string]: string } = {};
-
-                        li.findAll('li').forEach(setting => {
-                            const text = setting.textContent || '';
-                            const [key, value] = text.split(':').map(item => item.trim());
-                            if (key && value) {
-                                pairs[key] = value;
-                            }
-                        });
-    
-                        const localSettings: TierListSettings = { ...settings }; 
-    
-                        for (const [key, value] of Object.entries(pairs)) {
-                            switch (key.toLowerCase()) {
-                                case 'order':
-                                    localSettings.order = value.toLowerCase() === 'true';
-                                    break;
-                                case 'property':
-                                    localSettings.property = value;
-                                    break;
-                                case 'unordered':
-                                    localSettings.unordered = value;
-                                    break;
-                                case 'tag':
-                                    localSettings.tag = value;
-                                    break;
-                                case 'width':
-                                    localSettings.width = parseInt(value);
-                                    break;
-                                case 'slots':
-                                    localSettings.slots = parseInt(value);
-                                    break;
-                                case 'settings':
-                                    localSettings.settings = value;
-                                    break;
-                                case 'ratio':
-                                    localSettings.ratio = parseFloat(value);
-                                    break;
-                                default:
-                                    console.warn(`Unknown setting key: ${key}`);
-                                    break;
-                                }
-                            }
-                            redraw(el, localSettings)
-                            
-                            return;
+                        settingsProcessing(li, localSettings);
                     }
 
                     else if (node.nodeValue?.contains(settings.unordered)) {
@@ -400,6 +276,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                     node.remove();
                 }
             })
+            
             if (!unordered) {
                 const innerList = li.find("ul");
 
@@ -413,34 +290,53 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 })
 
                 li.prepend(tierDiv);
-                renderSlot(tierDiv);
             }
             else {
                 li.find("ul").addClass("unordered");
             }
         })
 
-        el.findAll(":scope > ul > li > ul > li").forEach( li => {
-            renderSlot(li);
-        })
+    }
 
-        el.findAll(":scope > ul > li > ul").forEach(list => {
-            list.addEventListener("contextmenu", async (evt) => {
-                evt.preventDefault();
-                const menu = new Menu();
-                const line = findDataLine(list) + list.children.length + 1;
+    function settingsProcessing(list: HTMLElement, settings: TierListSettings) {
+        list.remove();
+        const pairs: { [key: string]: string } = {};
+
+        list.findAll('li').forEach(setting => {
+            const text = setting.textContent || '';
+            const [key, value] = text.split(':').map(item => item.trim());
+            if (key && value) {
+                pairs[key] = value;
+            }
+        });
+
+        for (const [key, value] of Object.entries(pairs)) {
+            setSetting(key, value, settings);
+        }
+    }
+
+    return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+        // Tier List Check
+        const tagEl: HTMLElement = el.find(`a[href="${settings.tag}"]`);
+        if (!tagEl) 
+            return;
+        tagEl.remove();
+
+        // HTML cleanup
+        el.setAttr("data-line", ctx.getSectionInfo(el)?.lineStart || 0);
+        el.addClass("tier-list");   
+        el.findAll(".list-bullet").forEach(span => span.remove());
+        el.findAll(".list-collapse-indicator").forEach(span => span.remove());
+        el.findAll(":scope > ul > li:not(:has(ul))").forEach(list => {
+            const newul = document.createElement("ul");
+            list.appendChild(newul);
+        })
         
-                menu.addItem((item) => item.setTitle("Add Slot").setIcon("square-plus").onClick(() => {
-                    new SlotModal(app, "Add Slot", "\t", (result) => {
-                        if (result != "")
-                            insertLineInActiveFile(line, result);
-                    }).open();
-                }));
-                menu.showAtPosition({ x: evt.clientX, y: evt.clientY });
-            })
-        })
+        const localSettings: TierListSettings = { ...settings }; 
 
-        initializeSortableSlots(el);
-        initializeSortableRows(el);
+        initializeTierSlots(el, localSettings);
+        initializeSlots(el);
+        initializeRows(el);
+        redraw(el, localSettings);
     }
 }
