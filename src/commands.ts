@@ -21,7 +21,7 @@ export const insertTierListCommand = (settings: TierListSettings) => {
 const constructTierList = (settings: TierListSettings) => {
     let text = '';
     settings.tiers.forEach(tier => {
-        text += `- ${tier.name}\n`;
+        text += `- <span style="background-color: ${tier.color};">${tier.name}</span>\n`;
     })
     text += `- ${settings.unordered} \n`;
     text += `\t- \n`;

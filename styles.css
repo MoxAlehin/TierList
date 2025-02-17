@@ -66,6 +66,17 @@
     white-space: normal; /* Позволяет тексту переноситься на новые строки */
     margin: 0px !important;
     word-break: break-word;
+    padding: 0px;
+}
+
+.tier-list > ul > li > ul > li > span,
+.tier-list > ul > li > div > span {
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    display: flex;
+    text-align: center;
+    justify-content: center;
 }
 
 .tier-list > ul > li > div {
@@ -86,9 +97,11 @@
     border-radius: 0px !important;
 }
 
-.tier-list > ul > li > ul > li:not(:has(img)),
-.tier-list > ul > li > div:not(:has(img)) {
-    padding: 0.5em; /* Добавляем отступы только для текста */
+.tier-list > ul > li > ul > li > span,
+.tier-list > ul > li > ul > li:not(:has(span)),
+.tier-list > ul > li > div > span,
+.tier-list > ul > li > div:not(:has(span)) {
+    padding: 0.5em;
     z-index: 1; /* Устанавливаем текст выше изображения */
     position: relative;
 }
@@ -110,6 +123,10 @@
 
 .setting-item-control:has(input.tier-list-pieces-setting)::after {
     content: 'pcs.';
+}
+
+.setting-item-control:has(input.tier-list-ms-setting)::after {
+    content: 'ms';
 }
 
 .tier-item {

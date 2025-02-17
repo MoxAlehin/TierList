@@ -17,6 +17,7 @@ export interface TierListSettings {
 	slots: number;
 	settings: string;
 	ratio: number;
+	animation: number;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -35,6 +36,7 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	slots: 10,
 	settings: "Settings",
 	ratio: 1,
+	animation: 150,
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -70,20 +72,21 @@ export class SettingTab extends PluginSettingTab {
 		// Default Settings Header/////////////////////////////////////////////////////////////////////////////////////
 		containerEl.createEl('h1', { text: 'Default Settings' });
 
-		// Order Dropdown
-		// new Setting(containerEl)
-		// 	.setName('Order')
-		// 	.addDropdown(dropdown => {
-		// 		dropdown
-		// 			.addOption('true', 'Right - First, Left - Last')
-		// 			.addOption('false', 'Left - First, Right - Last')
-		// 			.setValue(String(this.plugin.settings.order))
-		// 			.onChange(async (value) => {
-		// 				this.plugin.settings.order = value === 'true';
-		// 				this.display();
-		// 				await this.plugin.saveSettings();
-		// 			});
-		// 	});
+		// Tier List Animation Duration(Integer)
+		new Setting(containerEl)
+			.setName('Animation Duration')
+			.setDesc('Animation speed moving items when sorting, 0 — without animation')
+			.addText(text => {
+				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-ms-setting');
+				text
+					.setValue(this.plugin.settings.animation.toString())
+					.onChange(async value => {
+						if (await this.checkNumber(text, /^([0-9]{1,3})$/)) {
+							this.plugin.settings.animation = Number(text.getValue());
+							this.plugin.saveSettings();
+						}
+					});
+			});
 
 		// Image Name Text
 		new Setting(containerEl)

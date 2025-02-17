@@ -6,6 +6,7 @@ import {
     TFile
 } from 'obsidian';
 import Sortable from 'sortablejs';
+import { SlotModal } from 'modal';
 import { TierListSettings } from 'settings';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
@@ -64,6 +65,51 @@ async function moveLinesInActiveFile(startIndex: number, count: number, newIndex
     lines.splice(newIndex, 0, ...removedLines);
 
     await app.vault.modify(file, lines.join("\n"));
+}
+
+async function replaceLineInActiveFile(lineNumber: number, newText: string) {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+
+    const fileContent = await app.vault.read(activeFile);
+    const lines = fileContent.split("\n");
+
+    if (lineNumber < 0 || lineNumber >= lines.length) {
+        return;
+    }
+
+    lines[lineNumber] = newText;
+
+    await app.vault.modify(activeFile, lines.join("\n"));
+}
+
+async function readLineFromActiveFile(lineNumber: number): Promise<string | null> {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return null;
+
+    const fileContent = await app.vault.read(activeFile);
+    const lines = fileContent.split("\n");
+
+    if (lineNumber < 0 || lineNumber >= lines.length) {
+        console.error("Номер строки выходит за границы файла");
+        return null;
+    }
+
+    return lines[lineNumber];
+}
+
+async function deleteLineInActiveFile(lineNumber: number) {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+
+    const content = await app.vault.read(activeFile);
+    const lines = content.split("\n");
+
+    if (lineNumber < 0 || lineNumber >= lines.length) return; // Проверка границ
+
+    lines.splice(lineNumber, 1); // Удаляем строку
+
+    await app.vault.modify(activeFile, lines.join("\n")); // Записываем обратно
 }
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings, component: Component): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
@@ -143,6 +189,25 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 }
             }
         });
+        slot.addEventListener("dblclick", async () => {
+            let line;
+            if (slot instanceof HTMLDivElement) {
+                const parentLine = parseInt(slot.parentElement?.parentElement?.parentElement?.getAttribute("data-line") || "0");
+                line = parseInt(slot.parentElement?.getAttr("data-line") || "0") + parentLine;
+            }
+            else {
+                const parentLine = parseInt(slot.parentElement?.parentElement?.parentElement?.parentElement?.getAttribute("data-line") || "0");
+                line = parseInt(slot.getAttr("data-line") || "0") + parentLine;
+            }
+            
+            const str = await readLineFromActiveFile(line);
+            new SlotModal(app, "Change Slot", str || "0", (result) => {
+                if (result != "")
+                    replaceLineInActiveFile(line, result);
+                else
+                    deleteLineInActiveFile(line);
+            }).open();
+        })
     }
 
     function initializeSortableSlots(tierListContainer: HTMLElement) {
@@ -150,7 +215,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         tierListContainer.querySelectorAll('ul > li > ul').forEach(list => {
             Sortable.create(list as HTMLElement, {
                 group: 'slot',
-                animation: 150,
+                animation: settings.animation,
                 onEnd: (evt) => {
                     const tierListLine = parseInt(evt.item.parentElement?.parentElement?.parentElement?.parentElement?.getAttr("data-line") || "0");
                     const parentLine = parseInt(evt.item.parentElement?.parentElement?.getAttr("data-line") || "0", 10);
@@ -173,7 +238,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
         Sortable.create(tierListContainer.find(":scope > ul"), {
             handle: 'ul > li > div',
             group: 'tier',
-            animation: 150,
+            animation: settings.animation,
             onEnd: (evt) => {
                 if (evt.oldIndex == evt.newIndex)
                     return;
