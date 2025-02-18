@@ -25,11 +25,11 @@ export interface TierListSettings {
 
 export const DEFAULT_SETTINGS: TierListSettings = {
 	tiers: [
-		{ name: 'S', color: '#FFD700' },
-		{ name: 'A', color: '#ffbf7f' },
-		{ name: 'B', color: '#ffdf7f' },
-		{ name: 'C', color: '#ffff7f' },
-		{ name: 'D', color: '#bfff7f' },
+		{ name: 'S', color: '#861d1d' },
+		{ name: 'A', color: '#ad6a28' },
+		{ name: 'B', color: '#a17e19' },
+		{ name: 'C', color: '#888814' },
+		{ name: 'D', color: '#127c36' },
 	],
 	useColors: true,
 	order: false,
