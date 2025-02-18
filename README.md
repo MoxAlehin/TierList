@@ -29,3 +29,17 @@ The plugin provides several customization options. You can define default settin
 | Ratio     | Aspect ratio of the slot                                   |
 | Width     | Width of the Tier List as a percentage of the display size |
 | Slots     | Number of slots per row                                    |
+
+## Dataview Integration
+This plugin integrates with Dataview, allowing you to supplement your tier lists with missing notes using Dataview queries.
+
+### How It Works
+1. Right-click in the relevant area to open the context menu and select "Request".
+2. In the modal window, configure the query settings (from, where).
+3. The plugin will retrieve matching notes and add missing entries to your tier list.
+
+![Dataview Modal](Images/TierList_DataviewModal.png)
+
+### Settings Persistence
+- The last used query is saved in the settings list for future use.
+- You can quickly reapply previous queries without manually re-entering them.
