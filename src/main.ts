@@ -1,6 +1,6 @@
 import { Plugin } from 'obsidian';
 import { SettingTab, TierListSettings, DEFAULT_SETTINGS } from "settings"
-import { generateTierListMarkdownPostProcessor, redraw } from 'post-processor'
+import { generateTierListPostProcessor, redraw } from 'post-processor'
 import { insertTierListCommand } from 'commands'
 
 export default class TierListPlugin extends Plugin {
@@ -8,7 +8,7 @@ export default class TierListPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new SettingTab(this.app, this));
-		this.registerMarkdownPostProcessor(generateTierListMarkdownPostProcessor(this.app, this.settings, this));
+		this.registerMarkdownPostProcessor(generateTierListPostProcessor(this.app, this.settings, this));
 		this.addCommand(insertTierListCommand(this.settings));
 		this.resize();
 	}

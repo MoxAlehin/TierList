@@ -1,7 +1,14 @@
 import { App, Modal, Setting, ButtonComponent, ColorComponent, TextComponent } from 'obsidian';
 
+enum InputType {
+    Text = "Text",
+    Internal = "Internal",
+    URL = "Url",
+    Link = "Link"
+}
+
 export class SlotModal extends Modal {
-    private useTab: boolean; // true = Entity, false = Tier
+    private useTab: boolean;
     private defaultColor: string = getComputedStyle(document.body).getPropertyValue("--background-secondary");
     private color: string = this.defaultColor;
     private useCustomColor: boolean = false;
@@ -11,10 +18,8 @@ export class SlotModal extends Modal {
     constructor(app: App, header: string, value: string, onSubmit: (result: string) => void) {
         super(app);
 
-        // Проверяем, начинается ли строка с табуляции
         this.useTab = value.startsWith("\t");
 
-        // Независимо от наличия таба, удаляем первые 2 символа
         value = value.substring(this.useTab ? 3 : 2);
 
         const spanRegex = /<span style="background-color:\s*(#[0-9a-fA-F]+);?">(.*?)<\/span>/;
@@ -22,8 +27,8 @@ export class SlotModal extends Modal {
 
         if (match) {
             this.useCustomColor = true;
-            value = match[2], // Очищенный текст без span
-            this.color = match[1];       // Цвет фона
+            value = match[2],
+            this.color = match[1];
         }
 
         this.setTitle(header);
@@ -33,6 +38,7 @@ export class SlotModal extends Modal {
             onSubmit(this.assembleValue(this.useTab, value, this.color));
         };
 
+        // Value Settings
         new Setting(this.contentEl)
             .setName('Value')
             .addButton((btn) => {
@@ -43,6 +49,25 @@ export class SlotModal extends Modal {
                 });
             
             })
+            // .addDropdown((dropdown) => {
+            //     Object.values(InputType).forEach((type) => {
+            //         dropdown.addOption(type, type);
+            //     });
+        
+            //     dropdown.setValue(InputType.Text);
+        
+            //     dropdown.onChange((value) => {
+            //         const selectedType = value as InputType;
+            //         switch (selectedType) {
+            //             case InputType.Text:
+            //                 break;
+            //             case InputType.Internal:
+            //                 break;
+            //             case InputType.URL:
+            //                 break;
+            //         }
+            //     })
+            // })
             .addText((text) => {
                 text.setValue(value);
                 this.textEl = text;
@@ -51,40 +76,42 @@ export class SlotModal extends Modal {
                 });
             });
 
-            new Setting(this.contentEl)
-            .setName("Custom Color")
-            .addColorPicker(picker => {
-                picker.setValue(this.color);
-                this.colorPicker = picker;
-                picker.setDisabled(!this.useCustomColor);
-                picker.onChange((value) => {
-                    this.color = value;
-            })})
-            .addToggle(toggle =>
-                toggle
-                    .setValue(this.useCustomColor)
-                    .onChange(val => {
-                        this.useCustomColor = val;
-                        const tempColor = this.color;
-                        this.colorPicker.setValue(val ? this.color : this.defaultColor)
-                        this.color = tempColor;
-                        this.colorPicker.setDisabled(!val)
-                    })
-            );
-            
+        // Color Settings
+        new Setting(this.contentEl)
+        .setName("Background color")
+        .addColorPicker(picker => {
+            picker.setValue(this.color);
+            this.colorPicker = picker;
+            picker.setDisabled(!this.useCustomColor);
+            picker.onChange((value) => {
+                this.color = value;
+        })})
+        .addToggle(toggle =>
+            toggle
+                .setValue(this.useCustomColor)
+                .onChange(val => {
+                    this.useCustomColor = val;
+                    const tempColor = this.color;
+                    this.colorPicker.setValue(val ? this.color : this.defaultColor)
+                    this.color = tempColor;
+                    this.colorPicker.setDisabled(!val)
+                })
+        );
+        
+        // Submit buttons
         new Setting(this.contentEl)
             .addButton((btn) =>
                 btn
-                    .setButtonText("Delete")
+                    .setIcon("trash-2")
                     .setWarning()
                     .onClick(() => {
                         this.close();
-                        onSubmit(""); // Отправляем пустую строку
+                        onSubmit("");
                     })
             )
             .addButton((btn) =>
                 btn
-                    .setButtonText('Submit')
+                    .setIcon("check")
                     .setCta()
                     .onClick(onSubmitHandler)
             );
@@ -107,6 +134,6 @@ export class SlotModal extends Modal {
     }
 
     private updateSlotButton(btn: ButtonComponent) {
-        btn.setButtonText(this.useTab ? 'Entity' : 'Tier');
+        btn.setButtonText(this.useTab ? 'Record' : 'Tier');
     }
 }

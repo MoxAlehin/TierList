@@ -1,9 +1,9 @@
 {
 	"id": "tier-list",
 	"name": "Tier List",
-	"version": "0.1.1",
+	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Visual ranking and organizing content into customizable Tier Lists",
+	"description": "Visual ranking and organizing content into customizable tier lists.",
 	"author": "Mox Alehin",
 	"authorUrl": "https://github.com/MoxAlehin",
 	"isDesktopOnly": true

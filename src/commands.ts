@@ -4,7 +4,7 @@ import { TierListSettings } from 'settings';
 export const insertTierListCommand = (settings: TierListSettings) => {
     return {
         id: 'tier-list-insert',
-        name: 'Insert Tier List',
+        name: 'Insert tier list',
         editorCallback: (editor: Editor, view: MarkdownView) => {
             const cursor = editor.getCursor();
             const text = constructTierList(settings);
@@ -21,11 +21,13 @@ export const insertTierListCommand = (settings: TierListSettings) => {
 const constructTierList = (settings: TierListSettings) => {
     let text = '';
     settings.tiers.forEach(tier => {
-        text += `- <span style="background-color: ${tier.color};">${tier.name}</span>\n`;
+        if (settings.useColors)
+            text += `- <span style="background-color: ${tier.color};">${tier.name}</span>\n`;
+        else
+            text += `- ${tier.name}\n`;
     })
     text += `- ${settings.unordered} \n`;
     text += `\t- \n`;
     text += `- ${settings.settings} ${settings.tag}\n`;
-    text += `\t- \n`;
     return text;
 }

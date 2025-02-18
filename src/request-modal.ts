@@ -1,8 +1,8 @@
 import { App, Modal, Setting, TextComponent, TextAreaComponent } from 'obsidian';
-import { getAPI } from "obsidian-dataview"; // API Dataview
+import { getAPI } from "obsidian-dataview";
 
 export class DataviewSearchModal extends Modal {
-    private from: string = '""';
+    private from: string = '';
     private where: string = "";
     private resultsContainer: HTMLElement;
     private foundFiles: string[] = [];
@@ -15,12 +15,14 @@ export class DataviewSearchModal extends Modal {
         this.onApply = onApply;
         this.from = from;
         this.where = where;
+        if (from || where)
+            this.searchFiles();
     }
 
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        this.setTitle("Dataview File Search");
+        this.setTitle("Dataview file search");
 
         // Поле FROM
         new Setting(contentEl)
@@ -59,17 +61,20 @@ export class DataviewSearchModal extends Modal {
         // Кнопки управления
         new Setting(contentEl)
             .addButton(btn => 
-                btn.setButtonText("Refresh")
-                   .setCta()
-                   .onClick(() => this.searchFiles())
+                btn
+                    .setIcon("refresh-ccw")
+                    .setCta()
+                    .onClick(() => this.searchFiles())
             )
             .addButton(btn => 
-                btn.setButtonText("Apply")
-                   .setCta()
-                   .onClick(() => {
+                btn
+                    .setIcon("check")
+                    .setCta()
+                    .onClick(() => {
+                        this.searchFiles();
                         this.close();
                         this.onApply(this.foundFiles, this.from, this.where);
-                   })
+                    })
             );
     }
 

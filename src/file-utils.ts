@@ -48,7 +48,6 @@ export async function readLineFromActiveFile(app: App, lineNumber: number): Prom
     const lines = fileContent.split("\n");
 
     if (lineNumber < 0 || lineNumber >= lines.length) {
-        console.error("Номер строки выходит за границы файла");
         return null;
     }
 
@@ -62,11 +61,11 @@ export async function deleteLineInActiveFile(app: App, lineNumber: number) {
     const content = await app.vault.read(activeFile);
     const lines = content.split("\n");
 
-    if (lineNumber < 0 || lineNumber >= lines.length) return; // Проверка границ
+    if (lineNumber < 0 || lineNumber >= lines.length) return;
 
-    lines.splice(lineNumber, 1); // Удаляем строку
+    lines.splice(lineNumber, 1);
 
-    await app.vault.modify(activeFile, lines.join("\n")); // Записываем обратно
+    await app.vault.modify(activeFile, lines.join("\n"));
 }
 
 export async function insertLineInActiveFile(app: App, lineNumber: number, newText: string) {
@@ -76,12 +75,9 @@ export async function insertLineInActiveFile(app: App, lineNumber: number, newTe
     const fileContent = await app.vault.read(activeFile);
     const lines = fileContent.split("\n");
 
-    // Ограничиваем lineNumber, чтобы он был в пределах допустимого диапазона
     const index = Math.max(0, Math.min(lineNumber, lines.length));
 
-    // Вставляем строку в нужное место
     lines.splice(index, 0, newText);
 
-    // Записываем обновлённый контент обратно в файл
     await app.vault.modify(activeFile, lines.join("\n"));
 }

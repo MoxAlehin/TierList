@@ -89,8 +89,7 @@
     border-radius: 0px !important;
 }
 
-.tier-list .slot > span,
-.tier-list .slot:not(:has(span)) {
+.tier-list .slot > span {
     padding: 0.5em;
     z-index: 1;
     position: relative;
@@ -106,26 +105,31 @@
     cursor: help !important;
 }
 
+.option-red,
+.option-red:hover {
+    background-color: var(--color-red) !important;
+}
+
 /* Settings Tab */
 
-.tier-list-number-setting {
+.tier-list-settings .tier-list-number-setting {
     width: 3em;
     text-align: center;
 }
 
-.setting-item-control:has(input.tier-list-persentage-setting)::after {
+.tier-list-settings .setting-item-control:has(input.tier-list-persentage-setting)::after {
     content: '%\00a0\00a0\00a0';
 }
 
-.setting-item-control:has(input.tier-list-pieces-setting)::after {
+.tier-list-settings .setting-item-control:has(input.tier-list-pieces-setting)::after {
     content: 'pcs.';
 }
 
-.setting-item-control:has(input.tier-list-ms-setting)::after {
+.tier-list-settings .setting-item-control:has(input.tier-list-ms-setting)::after {
     content: 'ms';
 }
 
-.tier-item {
+.tier-list-settings .tier-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -134,6 +138,6 @@
     width: 100%;
 }
 
-.setting-item {
+.tier-list-settings .setting-item {
     padding: 0.75em 0px 0.75em 0px !important;    
 }

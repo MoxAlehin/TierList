@@ -9,6 +9,7 @@ interface TierItem {
 
 export interface TierListSettings {
 	tiers: TierItem[];
+	useColors: boolean;
 	order: boolean;
 	property: string;
 	unordered: string;
@@ -30,6 +31,7 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 		{ name: 'C', color: '#ffff7f' },
 		{ name: 'D', color: '#bfff7f' },
 	],
+	useColors: true,
 	order: false,
 	property: 'Image',
 	unordered: 'To Rank',
@@ -39,7 +41,7 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	settings: "Settings",
 	ratio: 1,
 	animation: 150,
-	from: '""',
+	from: '',
 	where: "",
 };
 
@@ -92,13 +94,14 @@ export class SettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
+		containerEl.addClass("tier-list-settings")
 
 		// Default Settings Header/////////////////////////////////////////////////////////////////////////////////////
-		containerEl.createEl('h1', { text: 'Default Settings' });
+		new Setting(containerEl).setName('Default settings').setHeading();
 
 		// Tier List Animation Duration(Integer)
 		new Setting(containerEl)
-			.setName('Animation Duration')
+			.setName('Animation duration')
 			.setDesc('Animation speed moving items when sorting, 0 — without animation')
 			.addText(text => {
 				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-ms-setting');
@@ -114,7 +117,7 @@ export class SettingTab extends PluginSettingTab {
 
 		// Image Name Text
 		new Setting(containerEl)
-			.setName('Image Property Name')
+			.setName('Image property name')
 			.setDesc('Obsidian property which is used as Image reference')
 			.addText(text => {
 				text
@@ -127,7 +130,7 @@ export class SettingTab extends PluginSettingTab {
 
 		// Rank List Name Text
 		new Setting(containerEl)
-			.setName('To Rank List Name')
+			.setName('To rank list name')
 			.setDesc('The last and not renderable list')
 			.addText(text => {
 				text
@@ -140,7 +143,7 @@ export class SettingTab extends PluginSettingTab {
 		
 		// Tag Name Text
 		new Setting(containerEl)
-			.setName('Tag Name')
+			.setName('Tier list tag')
 			.setDesc('Tag which marks list as Tier List')
 			.addText(text => {
 				text
@@ -153,7 +156,7 @@ export class SettingTab extends PluginSettingTab {
 
 		// Settings Name Text
 		new Setting(containerEl)
-			.setName('Settings Name')
+			.setName('Settings name')
 			.setDesc('') //TODO
 			.addText(text => {
 				text
@@ -166,7 +169,7 @@ export class SettingTab extends PluginSettingTab {
 
 		// Tier List Slot X/Y Ratio(Float)
 		new Setting(containerEl)
-		.setName('Tier List Slot Width/Height Ratio')
+		.setName('Tier list slot width/height ratio')
 		.setDesc('') //TODO
 		.addText(text => {
 			// text.inputEl.classList.add('tier-list-number-setting');
@@ -182,8 +185,8 @@ export class SettingTab extends PluginSettingTab {
 
 		// Tier List Container Width Text(Integer)
 		new Setting(containerEl)
-			.setName('Tier List Width')
-			.setDesc('Width of Tier List container in percentage of screen')
+			.setName('Tier list width')
+			.setDesc('Width of tier list container in percentage of screen')
 			.addText(text => {
 				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-persentage-setting');
 				text
@@ -198,7 +201,7 @@ export class SettingTab extends PluginSettingTab {
 
 		// Number of Slots in tier Text(Integer)
 		new Setting(containerEl)
-			.setName('Number of Slots')
+			.setName('Number of slots')
 			.setDesc('How many slots will be displayed on one row before wrap to next line')
 			.addText(text => {
 				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-pieces-setting');
@@ -212,7 +215,17 @@ export class SettingTab extends PluginSettingTab {
 			});
 
 		// Default Tiers Header/////////////////////////////////////////////////////////////////////////////////////
-		containerEl.createEl('h1', { text: 'Default Tiers' });
+		new Setting(containerEl).setName('Default tiers').setHeading();
+
+		new Setting(containerEl)
+				.setName(`Use coloring`)
+				.addToggle(toggle => {
+					toggle.setValue(this.plugin.settings.useColors);
+					toggle.onChange((value) => {
+						this.plugin.settings.useColors = value;
+						this.plugin.saveSettings();
+					})
+				})
 
 		const tierListEl = containerEl.createEl('div', { cls: 'tier-lists' });
 
@@ -245,7 +258,7 @@ export class SettingTab extends PluginSettingTab {
 			// Delete Tier Button
 			setting.addButton(button => button
 				.setIcon("trash")
-				.setTooltip("Delete Tier")
+				.setTooltip("Delete tier")
 				.onClick(async () => {
 					this.plugin.settings.tiers.splice(index, 1);
 					await this.plugin.saveSettings();
@@ -257,7 +270,7 @@ export class SettingTab extends PluginSettingTab {
 		// Add new Tier Button
 		new Setting(containerEl)
 			.addButton(btn => btn
-				.setButtonText('Add Tier')
+				.setButtonText('Add tier')
 				.onClick(async () => {
 					this.plugin.settings.tiers.push({ name: '', color: '#ffffff' });
 					await this.plugin.saveSettings();
