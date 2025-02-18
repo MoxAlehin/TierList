@@ -48,38 +48,30 @@
     display: none !important;
 }
 
+.tier-list .settings {
+    display: none;
+}
+
 /* Slot */
-.tier-list > ul > li > ul > li,
-.tier-list > ul > li > div {
+.tier-list .slot {
     width: var(--tier-list-slot-width);
     max-width: var(--tier-list-slot-width);
     height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
-    /* max-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio)); */
     background-color: var(--background-secondary);
-    overflow: hidden; /* Отключение прокрутки */
+    overflow: hidden;
     text-align: center;
     position: relative;
     display: flex;
-    justify-content: center; /* Центрирование по горизонтали */
-    align-items: center; /* Центрирование по вертикали */
-    word-wrap: break-word; /* Перенос слов на новые строки */
-    white-space: normal; /* Позволяет тексту переноситься на новые строки */
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word;
+    white-space: normal;
     margin: 0px !important;
     word-break: break-word;
     padding: 0px;
 }
 
-.tier-list > ul > li > ul > li > span,
-.tier-list > ul > li > div > span {
-    height: 100%;
-    width: 100%;
-    align-items: center;
-    display: flex;
-    text-align: center;
-    justify-content: center;
-}
-
-.tier-list > ul > li > div {
+.tier-list .tier {
     height: inherit;
     min-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
 }
@@ -90,20 +82,24 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Картинка покрывает весь контейнер */
+    object-fit: cover;
     position: absolute;
     top: 0;
     left: 0;
     border-radius: 0px !important;
 }
 
-.tier-list > ul > li > ul > li > span,
-.tier-list > ul > li > ul > li:not(:has(span)),
-.tier-list > ul > li > div > span,
-.tier-list > ul > li > div:not(:has(span)) {
+.tier-list .slot > span,
+.tier-list .slot:not(:has(span)) {
     padding: 0.5em;
-    z-index: 1; /* Устанавливаем текст выше изображения */
+    z-index: 1;
     position: relative;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    display: flex;
+    text-align: center;
+    justify-content: center;
 }
 
 .help-cursor {

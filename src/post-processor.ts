@@ -43,9 +43,34 @@ function findDataLine(el: HTMLElement): number {
 }
 
 export function generateTierListMarkdownPostProcessor(app: App, settings: TierListSettings, component: Component): (el: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
-    async function renderSlot(el: HTMLElement): Promise<HTMLElement> {
-        const parent = el.parentElement || document.documentElement;
+    
+    const localSettings: TierListSettings = { ...settings }; 
+ 
+    function writeSetting(key: string, value: string, el: HTMLElement) {
+        const settingsList = el.find(".settings");
+        const valueText = `\t- ${key}: ${value}`;
+        if (settingsList) {
+            for (const setting of settingsList.findAll('li')) {
+                const text = setting.textContent || '';
+                const [fileKey, fileValue] = text.split(':').map(item => item.trim());
+                if (fileKey.toLowerCase() == key.toLowerCase()) {
+                    const settingLine = findDataLine(setting);
+                    console.log(settingLine)
+                    replaceLineInActiveFile(app, settingLine, valueText);
+                    return;
+                }
+            }
+            const settingLine = findDataLine(settingsList) + settingsList.children.length + 2;
+            console.log(settingLine)
+            insertLineInActiveFile(app, settingLine, valueText);
+        }
+        else {
+            
+        }
+    }
 
+    async function renderSlot(el: HTMLElement): Promise<HTMLElement> {
+        el.addClass("slot");
         // Check for internal-embed span and replace with img
         if (el.find('a.internal-link') && !el.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
             const link = el.find('a.internal-link');
@@ -162,9 +187,12 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             }).open();
         }));
         menu.addItem((item) => item.setTitle("Request Complete").setIcon("database").onClick(() => {
-            new DataviewSearchModal(app, "", "", (files, from, where) => {
-                // console.log("Selected files:", files);
-
+            new DataviewSearchModal(app, localSettings.from, localSettings.where, (files, from, where) => {
+                writeSetting("Where", where, document.documentElement)
+                setTimeout(() => {
+                    writeSetting("From", from, document.documentElement)
+                }, 50);
+                
             }).open();
         }));
     }
@@ -222,7 +250,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
 
     function initializeRows(tierListContainer: HTMLElement) {
         Sortable.create(tierListContainer.find(":scope > ul"), {
-            handle: 'ul > li > div',
+            handle: '.tier',
             group: 'tier',
             animation: settings.animation,
             onEnd: (evt) => {
@@ -256,7 +284,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
 
     }
 
-    function initializeTierSlots(el: HTMLElement, localSettings: TierListSettings) {
+    function initializeTierSlots(el: HTMLElement) {
         el.findAll(":scope > ul > li").forEach(li => {
 
             let text: string = "";
@@ -281,6 +309,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 const innerList = li.find("ul");
 
                 const tierDiv = document.createElement("div");
+                tierDiv.addClass("tier");
                 tierDiv.textContent = text;
 
                 Array.from(li.childNodes).forEach(node => {
@@ -290,6 +319,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
                 })
 
                 li.prepend(tierDiv);
+                renderSlot(tierDiv);
             }
             else {
                 li.find("ul").addClass("unordered");
@@ -299,7 +329,7 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
     }
 
     function settingsProcessing(list: HTMLElement, settings: TierListSettings) {
-        list.remove();
+        list.addClass("settings");
         const pairs: { [key: string]: string } = {};
 
         list.findAll('li').forEach(setting => {
@@ -331,10 +361,8 @@ export function generateTierListMarkdownPostProcessor(app: App, settings: TierLi
             const newul = document.createElement("ul");
             list.appendChild(newul);
         })
-        
-        const localSettings: TierListSettings = { ...settings }; 
 
-        initializeTierSlots(el, localSettings);
+        initializeTierSlots(el);
         initializeSlots(el);
         initializeRows(el);
         redraw(el, localSettings);

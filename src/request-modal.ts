@@ -13,6 +13,8 @@ export class DataviewSearchModal extends Modal {
     constructor(app: App, from: string, where: string, onApply: (names: string[], from: string, where: string) => void) {
         super(app);
         this.onApply = onApply;
+        this.from = from;
+        this.where = where;
     }
 
     onOpen() {
@@ -31,9 +33,10 @@ export class DataviewSearchModal extends Modal {
         // Поле WHERE
         new Setting(contentEl)
             .setName("Where")
-            .addText(text => 
+            .addText(text => {
+                text.setValue(this.where)
                 text.onChange(value => this.where = value)
-            );
+            });
 
         new Setting(this.contentEl)
             .setName("Count")
