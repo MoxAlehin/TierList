@@ -1,12 +1,10 @@
 # Tier List 
 
-This plugin allows you to render nested numbered lists as visual Tier Lists, providing an intuitive way to organize, rank, and display items using customizable tiers.
+This plugin allows you to render nested lists as visual Tier Lists, providing an intuitive way to organize, rank, and display items using customizable tiers.
 
 ![Games Example](Images/TierList_Example_Games.jpg)
 
 One of the core features of the plugin is the ability to render lists with both internal and external images, any markdown text, or covers linked via a file's frontmatter. You can specify an image for a file in the frontmatter using the `Image` key, which will serve as a visual cover for that file in the tier list.
-
-Additionally, you can navigate back to the original note from its visual representation in the Tier List by using **Ctrl + Left Click** on the file’s cover image or text.
 
 ![Source](Images/TierList_Source.jpg)
 
@@ -16,13 +14,11 @@ Using markdown links within a Tier List ensures that all items maintain their re
 
 ![Local Graph](Images/TierList_LocalGraph.jpg)
 
-To use the Tier List plugin, you can either insert the `#TierList` tag anywhere within a numbered list, which marks the list for tier rendering, or use the command `Insert Tier List` to automatically create a list preformatted for ranking.
+To use the Tier List plugin, you can either insert the `#TierList` tag anywhere within a numbered list, which marks the list for tier rendering, or use the command `Insert tier list` to automatically create a list preformatted for ranking.
 
 Tier List also includes a “To Rank” section, where items that have not yet been placed in a specific tier will be shown. This section collapses automatically once it becomes empty, keeping the view clean and focused on ranked items.
 
 ![How To Use](Images/TierList_HowToUse.gif)
-
-*The plugin currently does not support drag-and-drop functionality at the backend level. This means that if you rearrange elements in the reading view, it will not affect the actual structure of the file itself. Any changes made in reading view will not be saved to the markdown file.*
 
 ## Settings
 
