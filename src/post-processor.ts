@@ -45,7 +45,7 @@ function findDataLine(el: HTMLElement): number {
 
 export function generateTierListPostProcessor(app: App, settings: TierListSettings, component: Component): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
 
-    return (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+    return async (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 
         // Tier List Check
         const tagEl: HTMLElement = tierList.find(`a[href="${settings.tag}"]`);
@@ -87,8 +87,8 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
         async function renderSlot(slot: HTMLElement): Promise<HTMLElement> {
             slot.addClass("slot");
             // Check for internal-embed span and replace with img
-            if (slot.find('a.internal-link') && !slot.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-                const link = slot.find('a.internal-link');
+            const link = slot.find('a.internal-link');
+            if (link && !slot.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                 const filePath = link.getAttribute('href');
                 if (filePath) {
                     const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
@@ -104,6 +104,14 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                     }
                 }
             }
+
+            // Wait for the Exacalidraw render
+            setTimeout(() => {
+                slot.findAll(".excalidraw-embedded-img").forEach(excalidrawEl => {
+                    const newElement = excalidrawEl.cloneNode(true);
+                    excalidrawEl.parentElement?.replaceChild(newElement, excalidrawEl);
+                })
+              }, 50);
 
             slot.addEventListener("contextmenu", async (evt) => {
                 evt.preventDefault();
@@ -140,12 +148,15 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
         }
 
         function addClickHandler(slot: HTMLElement) {
-            if (slot.find('.excalidraw-embedded-img'))
-                return;
             slot.addEventListener('click', (event: MouseEvent) => {
                 event.preventDefault();
-                event.stopPropagation();
+                if (slot.find('.excalidraw-embedded-img')) {
+                    event.stopPropagation();
+                    return;
+                }
+                    
                 if (event.ctrlKey) {
+                    event.stopPropagation();
                     const link = slot.find('a.internal-link, a.external-link');
                     if (link) {
                         const href = link.getAttribute('href');
@@ -232,9 +243,10 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             addListContextMenuOptions(menu, line);
         }
 
-        function initializeSlots() {
+        async function initializeSlots() {
             // Initialize Sortable for all Slots elements
-            tierList.findAll('ul > li > ul').forEach(list => {
+
+            for (const list of tierList.findAll('ul > li > ul')) {
                 Sortable.create(list as HTMLElement, {
                     group: 'slot',
                     animation: settings.animation,
@@ -269,10 +281,10 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                             await insertLineInActiveFile(app, line, result);
                     }).open();
                 })
-                list.findAll("li").forEach(list => {
-                    renderSlot(list);
-                })
-            });
+                for (const li of list.findAll("li")) {
+                    renderSlot(li);
+                }
+            };
         }
 
         function initializeRows() {
@@ -308,8 +320,8 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             });
         }
 
-        function initializeTierSlots() {
-            tierList.findAll(":scope > ul > li").forEach(li => {
+        async function initializeTierSlots() {
+            for (const li of tierList.findAll(":scope > ul > li")) {
 
                 let text: string = "";
                 let unordered: boolean = false;
@@ -343,13 +355,12 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                     })
 
                     li.prepend(tierDiv);
-                    renderSlot(tierDiv);
+                    await renderSlot(tierDiv);
                 }
                 else {
                     li.find("ul").addClass("unordered");
                 }
-            })
-
+            }
         }
 
         function settingsProcessing(list: HTMLElement, settings: TierListSettings) {
@@ -415,8 +426,8 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             list.appendChild(newul);
         })
 
-        initializeTierSlots();
-        initializeSlots();
+        await initializeTierSlots();
+        await initializeSlots();
         initializeRows();
 
         redraw(tierList, localSettings);
