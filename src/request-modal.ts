@@ -50,10 +50,10 @@ export class DataviewSearchModal extends Modal {
 
         new Setting(this.contentEl)
             .setName("Files")
+            .setClass("tier-list-query")
             .addTextArea(textArea => {
                 this.resultAreaComponent = textArea;
                 textArea.inputEl.readOnly = true;
-                textArea.inputEl.style.resize = "none";
                 textArea.inputEl.rows = 5;
                 textArea.inputEl.cols = 40;
             });
