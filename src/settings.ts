@@ -10,7 +10,6 @@ interface TierItem {
 export interface TierListSettings {
 	tiers: TierItem[];
 	useColors: boolean;
-	order: boolean;
 	property: string;
 	unordered: string;
 	tag: string;
@@ -32,7 +31,6 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 		{ name: 'D', color: '#127c36' },
 	],
 	useColors: true,
-	order: false,
 	property: 'Image',
 	unordered: 'To Rank',
 	tag: '#tier-list',

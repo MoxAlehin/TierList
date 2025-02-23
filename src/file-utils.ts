@@ -40,6 +40,27 @@ export async function replaceLineInActiveFile(app: App, lineNumber: number, newT
     await app.vault.modify(activeFile, lines.join("\n"));
 }
 
+export async function replaceLinesInActiveFile(
+    app: App, 
+    startLine: number, 
+    lineCount: number, 
+    newLines: string[]
+) {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+
+    const fileContent = await app.vault.read(activeFile);
+    const lines = fileContent.split("\n");
+
+    if (startLine < 0 || lineCount < 0 || startLine >= lines.length) {
+        return;
+    }
+
+    lines.splice(startLine, lineCount, ...newLines);
+
+    await app.vault.modify(activeFile, lines.join("\n"));
+}
+
 export async function readLineFromActiveFile(app: App, lineNumber: number): Promise<string | null> {
     const activeFile = app.workspace.getActiveFile();
     if (!activeFile) return null;

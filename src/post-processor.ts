@@ -6,11 +6,19 @@ import {
     Menu
 } from 'obsidian';
 import Sortable from 'sortablejs';
-import {moveLinesInActiveFile, replaceLineInActiveFile, readLineFromActiveFile, deleteLineInActiveFile, insertLineInActiveFile} from 'file-utils';
+import {
+    moveLinesInActiveFile, 
+    replaceLineInActiveFile, 
+    readLineFromActiveFile, 
+    deleteLineInActiveFile, 
+    insertLineInActiveFile,
+    replaceLinesInActiveFile
+} from 'file-utils';
 import { SlotModal } from 'slot-modal';
 import { DataviewSearchModal } from 'request-modal'
-import { TierListSettings, setSetting } from 'settings';
+import { TierListSettings, setSetting, DEFAULT_SETTINGS } from 'settings';
 import { getAPI } from "obsidian-dataview";
+import { LocalSettingsModal } from 'local-settings-modal';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--tier-list-width-ratio', `${settings.width / 100}`);
@@ -59,12 +67,12 @@ export async function searchFiles(from: string, where: string): Promise<string[]
     }
 }
 
-export function generateTierListPostProcessor(app: App, settings: TierListSettings, component: Component): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
+export function generateTierListPostProcessor(app: App, globalSettings: TierListSettings, component: Component): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
 
     return async (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 
         // Tier List Check
-        const tagEl: HTMLElement = tierList.find(`a[href="${settings.tag}"]`);
+        const tagEl: HTMLElement = tierList.find(`a[href="${globalSettings.tag}"]`);
         if (!tagEl) 
             return;
         tagEl.remove();
@@ -73,7 +81,7 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
         if (!sectionInfo)
             return;
 
-        const localSettings: TierListSettings = { ...settings };
+        const localSettings: TierListSettings = { ...globalSettings };
 
         async function writeSetting(key: string, value: string) {
             const settingsList = tierList.find(".settings");
@@ -100,6 +108,26 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             }
         }
 
+        async function writeSettings(settings: Partial<TierListSettings>) {
+            const settingsList = tierList.find(".settings");
+            settings = Object.fromEntries(
+                Object.entries(settings).filter(([key, value]) => 
+                    DEFAULT_SETTINGS[key as keyof TierListSettings] !== value
+                ));
+            
+            const values = Object.entries(settings)
+                                    .map(([key, value]) => `\t- ${key}: ${value}`);
+            if (settingsList) {
+                const settingLine = findDataLine(settingsList) + 1;
+                await replaceLinesInActiveFile(app, settingLine, settingsList.find("ul").children.length, values);
+            }
+            else {
+                values.unshift(`- ${localSettings.settings}`);
+                const settingsLine = ctx.getSectionInfo(tierList)?.lineEnd || 0;
+                await insertLineInActiveFile(app, settingsLine + 1, values.join('\n'));
+            }
+        }
+
         async function renderSlot(slot: HTMLElement): Promise<HTMLElement> {
             slot.addClass("slot");
             // Check for internal-embed span and replace with img
@@ -110,8 +138,8 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                     const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
                     if (file) {
                         const fileCache = app.metadataCache.getFileCache(file);
-                        if (fileCache && fileCache.frontmatter && fileCache.frontmatter[settings.property]) {
-                            let imageSrc = fileCache.frontmatter[settings.property];
+                        if (fileCache && fileCache.frontmatter && fileCache.frontmatter[localSettings.property]) {
+                            let imageSrc = fileCache.frontmatter[localSettings.property];
                             if (imageSrc.match('http'))
                                 imageSrc = `[](${imageSrc})`
                             slot.textContent = "";
@@ -228,6 +256,12 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                 }).open();
             }));
 
+            menu.addItem((item) => item.setTitle("Settings").setIcon("settings").onClick(() => {
+                new LocalSettingsModal(app, localSettings, (updatedSettings: Partial<TierListSettings>) => {
+                    writeSettings(updatedSettings);
+                }).open();
+            }))
+
             // Dataview options
             const dv = getAPI();
             if (!dv) return;
@@ -274,7 +308,7 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             for (const list of tierList.findAll('ul > li > ul')) {
                 Sortable.create(list as HTMLElement, {
                     group: 'slot',
-                    animation: settings.animation,
+                    animation: localSettings.animation,
                     onEnd: async (evt) => {
                         const tierListLine = parseInt(evt.item.parentElement?.parentElement?.parentElement?.parentElement?.getAttr("data-line") || "0");
                         const parentLine = parseInt(evt.item.parentElement?.parentElement?.getAttr("data-line") || "0", 10);
@@ -316,7 +350,7 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             Sortable.create(tierList.find(":scope > ul"), {
                 handle: '.tier',
                 group: 'tier',
-                animation: settings.animation,
+                animation: localSettings.animation,
                 onEnd: async (evt) => {
                     if (evt.oldIndex == evt.newIndex)
                         return;
@@ -352,11 +386,11 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                 let unordered: boolean = false;
                 li.childNodes.forEach(node => {
                     if (node.nodeType === Node.TEXT_NODE) {
-                        if (node.nodeValue?.contains(settings.settings)) {
+                        if (node.nodeValue?.contains(localSettings.settings)) {
                             settingsProcessing(li, localSettings);
                         }
 
-                        else if (node.nodeValue?.contains(settings.unordered)) {
+                        else if (node.nodeValue?.contains(localSettings.unordered)) {
                             unordered = true;
                         }
                         else {
