@@ -43,6 +43,22 @@ function findDataLine(el: HTMLElement): number {
     return 0;
 }
 
+export async function searchFiles(from: string, where: string): Promise<string[]> {
+    const dv = getAPI();
+    if (!dv) return [];
+
+    try {
+        let query = `LIST FROM ${from}`;
+        if (where) query += ` WHERE ${where}`;
+        const result = await dv.query(query);
+        return result.value.values.map((p: { path: any; }) => dv.page(p.path).file.name);
+
+    } catch (error) {
+        console.log(error.message);
+        return [];
+    }
+}
+
 export function generateTierListPostProcessor(app: App, settings: TierListSettings, component: Component): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
 
     return async (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => {
@@ -195,6 +211,15 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
             })
         }
 
+        async function addMissingSlots(names: string[], line: number) {
+            names = await filterTierListNames(names);
+            const text = names.map(name => `\t- [[${name}]]`).join("\n");
+
+            if (text) {
+                await insertLineInActiveFile(app, line, text);   
+            }
+        }
+
         function addListContextMenuOptions(menu: Menu, line: number) {
             menu.addItem((item) => item.setTitle("Add slot").setIcon("square-plus").onClick(() => {
                 new SlotModal(app, "Add slot", "\t", async (result) => {
@@ -203,23 +228,23 @@ export function generateTierListPostProcessor(app: App, settings: TierListSettin
                 }).open();
             }));
 
-            // Dataview request modal
+            // Dataview options
             const dv = getAPI();
-            if (dv) {
-                menu.addItem((item) => item.setTitle("Request").setIcon("database").onClick(() => {
-                    new DataviewSearchModal(app, localSettings.from, localSettings.where, async (names, from, where) => {
-                        names = await filterTierListNames(names);
-                        const text = names.map(name => `\t- [[${name}]]`).join("\n");
+            if (!dv) return;
 
-                        await writeSetting("Where", where);
-                        await writeSetting("From", from);
+            menu.addItem((item) => item.setTitle("Request").setIcon("search").onClick(() => {
+                new DataviewSearchModal(app, localSettings.from, localSettings.where, async (names, from, where) => {
+                    await writeSetting("Where", where);
+                    await writeSetting("From", from);
+                    addMissingSlots(names, line);
+                }).open();
+            }));
 
-                        if (text) {
-                            await insertLineInActiveFile(app, line, text);   
-                        }
-
-                    }).open();
-                }));
+            if (localSettings.from) {
+                menu.addItem((item) => item.setTitle("Add missing").setIcon("database").onClick(async () => {
+                    const names = await searchFiles(localSettings.from, localSettings.where);
+                    addMissingSlots(names, line);
+                }))
             }
         }
 
