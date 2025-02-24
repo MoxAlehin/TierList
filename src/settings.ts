@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting, TextComponent } from 'obsidian';
 import TierListPlugin from 'main';
 import Sortable from 'sortablejs';
+import { InputType } from 'slot-modal'
 
 interface TierItem {
 	name: string;
@@ -20,6 +21,7 @@ export interface TierListSettings {
 	animation: number;
 	from: string;
 	where: string;
+	lastSlotType: InputType;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -41,6 +43,7 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	animation: 150,
 	from: '',
 	where: "",
+	lastSlotType: InputType.Text
 };
 
 export function setSetting(key: string, value: string, settings: TierListSettings) {

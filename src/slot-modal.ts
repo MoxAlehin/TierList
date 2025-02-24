@@ -1,7 +1,8 @@
-import { App, Modal, Setting, ColorComponent, TextComponent, DropdownComponent, ToggleComponent, ButtonComponent } from 'obsidian';
+import TierListPlugin from 'main';
+import { App, Modal, Setting, ColorComponent, TextComponent, DropdownComponent, ButtonComponent } from 'obsidian';
 import { FileSuggest } from 'suggesters/file-suggester';
 
-enum InputType {
+export enum InputType {
     Text = "Text",
     InternalEmbed = "Internal Embed",
     InternalLink = "Internal Link / Cover",
@@ -105,6 +106,7 @@ export class SlotModal extends Modal {
     private aliasSetting: TextComponent;
     private useTabSetting: ButtonComponent;
     private valueSetting: Setting;
+    private plugin: TierListPlugin;
 
     updateSettings() {
         this.valueSetting
@@ -135,9 +137,10 @@ export class SlotModal extends Modal {
         }
     }
 
-    constructor(app: App, header: string, value: string, onSubmit: (result: string) => void) {
+    constructor(app: App, plugin: TierListPlugin, header: string, value: string, onSubmit: (result: string) => void) {
         super(app);
         this.containerEl.addClass("tier-list-slot-modal");
+        this.plugin = plugin;
 
         this.value = new ParsedInput(value);
 
@@ -167,11 +170,19 @@ export class SlotModal extends Modal {
                 Object.values(InputType).forEach((type) => {
                     dropdown.addOption(type, type);
                 });
-        
-                dropdown.setValue(this.value.type);
+
+                if (this.value.value != '') {
+                    dropdown.setValue(this.value.type)
+                }
+                else {
+                    dropdown.setValue(this.plugin.settings.lastSlotType)
+                    this.value.type = this.plugin.settings.lastSlotType;
+                }
         
                 dropdown.onChange((value) => {
                     this.value.type = value as InputType;
+                    this.plugin.settings.lastSlotType = value as InputType;
+                    this.plugin.saveSettings();
                     this.updateSettings();
                 })
             });

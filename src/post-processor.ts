@@ -19,6 +19,7 @@ import { DataviewSearchModal } from 'request-modal'
 import { TierListSettings, setSetting, DEFAULT_SETTINGS } from 'settings';
 import { getAPI } from "obsidian-dataview";
 import { LocalSettingsModal } from 'local-settings-modal';
+import TierListPlugin from 'main';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--tier-list-width-ratio', `${settings.width / 100}`);
@@ -67,12 +68,12 @@ export async function searchFiles(from: string, where: string): Promise<string[]
     }
 }
 
-export function generateTierListPostProcessor(app: App, globalSettings: TierListSettings, component: Component): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
-
+export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
+    const app = plugin.app;
     return async (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 
         // Tier List Check
-        const tagEl: HTMLElement = tierList.find(`a[href="${globalSettings.tag}"]`);
+        const tagEl: HTMLElement = tierList.find(`a[href="${plugin.settings.tag}"]`);
         if (!tagEl) 
             return;
         tagEl.remove();
@@ -81,7 +82,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
         if (!sectionInfo)
             return;
 
-        const localSettings: TierListSettings = { ...globalSettings };
+        const localSettings: TierListSettings = { ...plugin.settings };
 
         async function writeSetting(key: string, value: string) {
             const settingsList = tierList.find(".settings");
@@ -143,7 +144,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
                             if (imageSrc.match('http'))
                                 imageSrc = `[](${imageSrc})`
                             slot.textContent = "";
-                            await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', component);
+                            await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', plugin);
                             slot.setAttr('href', filePath);
                         }
                     }
@@ -240,7 +241,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
                 evt.stopPropagation();
                 const line = findDataLine(slot);
                 const str = await readLineFromActiveFile(app, line);
-                new SlotModal(app, "Change slot", str || "0", async (result) => {
+                new SlotModal(app, plugin, "Change slot", str || "0", async (result) => {
                     if (result != "")
                         await replaceLineInActiveFile(app, line, result);
                     else
@@ -260,7 +261,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
 
         function addListContextMenuOptions(menu: Menu, line: number) {
             menu.addItem((item) => item.setTitle("Add slot").setIcon("square-plus").onClick(() => {
-                new SlotModal(app, "Add slot", "\t", async (result) => {
+                new SlotModal(app, plugin, "Add slot", "\t", async (result) => {
                     if (result != "")
                         await insertLineInActiveFile(app, line, result);
                 }).open();
@@ -295,7 +296,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
         async function addSlotContextMenuOptions(menu: Menu, line: number) {
             const str = await readLineFromActiveFile(app, line);
             menu.addItem((item) => item.setTitle("Edit slot").setIcon("pencil").onClick(() => {
-                new SlotModal(app, "Change slot", str || "0", async (result) => {
+                new SlotModal(app, plugin, "Change slot", str || "0", async (result) => {
                     if (result != "")
                         await replaceLineInActiveFile(app, line, result);
                     else
@@ -345,7 +346,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
                 list.addEventListener("dblclick", (evt) => {
                     evt.preventDefault();
                     const line = findDataLine(list) + list.children.length + 1;
-                    new SlotModal(app, "Add slot", "\t", async (result) => {
+                    new SlotModal(app, plugin, "Add slot", "\t", async (result) => {
                         if (result != "")
                             await insertLineInActiveFile(app, line, result);
                     }).open();
