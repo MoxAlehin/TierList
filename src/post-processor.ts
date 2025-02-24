@@ -132,7 +132,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
             slot.addClass("slot");
             // Check for internal-embed span and replace with img
             const link = slot.find('a.internal-link');
-            if (link && !slot.find('a.internal-link').getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+            if (link && !link.getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                 const filePath = link.getAttribute('href');
                 if (filePath) {
                     const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
@@ -144,6 +144,7 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
                                 imageSrc = `[](${imageSrc})`
                             slot.textContent = "";
                             await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', component);
+                            slot.setAttr('href', filePath);
                         }
                     }
                 }
@@ -201,8 +202,17 @@ export function generateTierListPostProcessor(app: App, globalSettings: TierList
                     
                 if (event.ctrlKey) {
                     event.stopPropagation();
+
                     const link = slot.find('a.internal-link, a.external-link');
-                    if (link) {
+
+                    if (slot.hasAttribute('href')) {
+                        const href = slot.getAttr('href') || '';
+                        const file = app.metadataCache.getFirstLinkpathDest(href, '');
+                                if (file) {
+                                    app.workspace.openLinkText(href, file.path);
+                                }
+                    }
+                    else if (link) {
                         const href = link.getAttribute('href');
                         if (href) {
                             if (link.hasClass('internal-link')) {
