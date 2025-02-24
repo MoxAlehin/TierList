@@ -1,9 +1,10 @@
 import { App, Modal, Setting, ColorComponent, TextComponent, DropdownComponent, ToggleComponent, ButtonComponent } from 'obsidian';
+import { FileSuggest } from 'suggesters/file-suggester';
 
 enum InputType {
     Text = "Text",
     InternalEmbed = "Internal Embed",
-    InternalLink = "Internal Link",
+    InternalLink = "Internal Link / Cover",
     ExternalEmbed = "External Embed",
     ExternalLink = "External Link"
 }
@@ -18,22 +19,19 @@ class ParsedInput {
     isUseTab: boolean;
 
     constructor(rawValue: string) {
-        // Проверяем, есть ли начальный табулятор (\t)
         this.isUseTab = rawValue.startsWith("\t");
         if (this.isUseTab) {
-            rawValue = rawValue.trimStart(); // Убираем табуляцию для дальнейшего парсинга
+            rawValue = rawValue.trimStart();
         }
 
         rawValue = rawValue.slice(2);
 
-        // Проверяем наличие цвета через <span style="background-color:COLOR">
         const colorMatch = rawValue.match(/<span style="background-color:\s*([^">]+);">(.+?)<\/span>/);
         if (colorMatch) {
             this.color = colorMatch[1];
-            rawValue = colorMatch[2]; // Убираем обертку <span>
+            rawValue = colorMatch[2];
         }
 
-        // Определяем тип ссылки
         const internalEmbedMatch = rawValue.match(/!\[\[(.*?)(?:\|(.*?))?\]\]/);
         const internalLinkMatch  =  rawValue.match(/\[\[(.*?)(?:\|(.*?))?\]\]/);
         const externalEmbedMatch = rawValue.match(/!\[(.*?)\]\((.*?)\)/);
@@ -64,11 +62,9 @@ class ParsedInput {
         if (this.alias)
             this.alias = this.alias.trim()
 
-        // Определяем, является ли цвет кастомным
         this.useCustomColor = this.color !== this.defaultColor;
     }
 
-    // Метод для конвертации обратно в строку
     toString(): string {
         let output = "";
 
@@ -91,12 +87,10 @@ class ParsedInput {
                 break;
         }
 
-        // Добавляем цвет, если он кастомный
         if (this.useCustomColor && this.defaultColor != this.color) {
             output = `<span style="background-color:${this.color};">${output}</span>`;
         }
 
-        // Добавляем '- ' в начало и табуляцию, если нужно
         output = `${this.isUseTab ? "\t" : ""}- ${output}`;
 
         return output;
@@ -106,12 +100,30 @@ class ParsedInput {
 export class SlotModal extends Modal {
     private colorPicker: ColorComponent;
     private value: ParsedInput;
-    private valueSetting: TextComponent;
+    private valueComponent: TextComponent;
     private typeSetting: DropdownComponent;
     private aliasSetting: TextComponent;
     private useTabSetting: ButtonComponent;
+    private valueSetting: Setting;
 
     updateSettings() {
+        this.valueSetting
+            .clear()
+            .setName("Value")
+            .addText((text) => {
+                if (this.value.type == InputType.InternalEmbed || this.value.type == InputType.InternalLink) {
+                    try {
+                        new FileSuggest(this.app, text.inputEl);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                this.valueComponent = text;
+                text.setValue(this.value.value);
+                text.onChange((value) => {
+                    this.value.value = value;
+                });
+            });
         
         if (this.value.type == InputType.Text) {
             this.aliasSetting.setValue("");
@@ -162,18 +174,10 @@ export class SlotModal extends Modal {
                     this.value.type = value as InputType;
                     this.updateSettings();
                 })
-            })
-        
-        // Value setting
-        new Setting(this.contentEl)
-            .setName("Value")
-            .addText((text) => {
-                this.valueSetting = text;
-                text.setValue(this.value.value);
-                text.onChange((value) => {
-                    this.value.value = value;
-                });
             });
+
+        // Value setting
+        this.valueSetting = new Setting(this.contentEl);
 
         // Alias setting
         new Setting(this.contentEl)
@@ -235,8 +239,8 @@ export class SlotModal extends Modal {
         
         this.onOpen = () => {
             setTimeout(() => {
-                this.valueSetting.inputEl.focus();
-                this.valueSetting.inputEl.select();
+                this.valueComponent.inputEl.focus();
+                this.valueComponent.inputEl.select();
             }, 0);
         };
     }
