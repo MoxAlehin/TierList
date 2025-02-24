@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting, TextComponent } from 'obsidian';
 import TierListPlugin from 'main';
 import Sortable from 'sortablejs';
-import { InputType } from 'slot-modal'
+import { InputType } from 'modals/slot-modal'
 
 interface TierItem {
 	name: string;

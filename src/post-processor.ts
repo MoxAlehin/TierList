@@ -14,11 +14,11 @@ import {
     insertLineInActiveFile,
     replaceLinesInActiveFile
 } from 'file-utils';
-import { SlotModal } from 'slot-modal';
-import { DataviewSearchModal } from 'request-modal'
+import { SlotModal } from 'modals/slot-modal';
+import { DataviewSearchModal } from 'modals/request-modal'
 import { TierListSettings, setSetting, DEFAULT_SETTINGS } from 'settings';
 import { getAPI } from "obsidian-dataview";
-import { LocalSettingsModal } from 'local-settings-modal';
+import { LocalSettingsModal } from 'modals/local-settings-modal';
 import TierListPlugin from 'main';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
