@@ -67,6 +67,10 @@
     padding: 0px;
 }
 
+.tier-list .slot:not(:has(*)) {
+    padding: 0.5em;
+}
+
 .tier-list .tier {
     height: inherit;
     min-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
