@@ -1,10 +1,6 @@
 /* Wrapper container */
 .tier-list {
     position: relative;
-    width: 100vw;
-    left: 50%;
-    transform: translateX(-50%);
-    overflow: hidden;
     display: flex;
     justify-content: center;
     flex-wrap: nowrap;
