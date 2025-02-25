@@ -304,10 +304,14 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 }).open();
             }));
             menu.addItem((item) => {
-                
                 (item as any).dom.addClass("option-red");
                 item.setTitle("Delete slot").setIcon("trash-2").onClick(async () => {
                     await deleteLineInActiveFile(app, line);
+                })
+            });
+            menu.addItem((item) => {
+                item.setTitle("Duplicate slot").setIcon("copy").onClick(async () => {
+                    await insertLineInActiveFile(app, line, await readLineFromActiveFile(app, line) || '');
                 })
             });
             addListContextMenuOptions(menu, line);
