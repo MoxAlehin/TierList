@@ -27,10 +27,6 @@ export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--screen-width', `${screen.width}px`);
     el.style.setProperty('--tier-list-slot-count', `${settings.slots}`);
     el.style.setProperty('--tier-list-aspect-ratio', `${settings.ratio}`);
-    console.log('--tier-list-width-ratio', `${settings.width / 100}`)
-    console.log('--screen-width', `${screen.width}px`)
-    console.log('--tier-list-slot-count', `${settings.slots}`)
-    console.log('--tier-list-aspect-ratio', `${settings.ratio}`)
 }
 
 function findDataLine(el: HTMLElement): number {
@@ -298,7 +294,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
 
             for (const list of tierList.findAll('ul > li > ul')) {
                 Sortable.create(list as HTMLElement, {
-                    group: 'slot',
+                    group: `slot-${sectionInfo?.lineStart}`,
                     animation: localSettings.animation,
                     onEnd: async (evt) => {
                         const tierListLine = parseInt(evt.item.parentElement?.parentElement?.parentElement?.parentElement?.getAttr("data-line") || "0");
@@ -339,8 +335,8 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
 
         function initializeRows() {
             Sortable.create(tierList.find(":scope > ul"), {
-                handle: '.tier',
-                group: 'tier',
+                handle: '.tier-list-tier',
+                group: `tier-${sectionInfo?.lineStart}`,
                 animation: localSettings.animation,
                 onEnd: async (evt) => {
                     if (evt.oldIndex == evt.newIndex)
