@@ -16,12 +16,13 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
             const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
             if (file) {
                 const fileCache = app.metadataCache.getFileCache(file);
-                if (fileCache && fileCache.frontmatter && fileCache.frontmatter[settings.property]) {
+                const parent = link.parentElement;
+                if (fileCache && fileCache.frontmatter && fileCache.frontmatter[settings.property] && parent) {
                     let imageSrc = fileCache.frontmatter[settings.property];
                     if (imageSrc.match('http'))
                         imageSrc = `[](${imageSrc})`
-                    slot.textContent = "";
-                    await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', plugin);
+                    parent.textContent = '';
+                    await MarkdownRenderer.render(app, `!${imageSrc}`, parent, '', plugin);
                     slot.setAttr('href', filePath);
                 }
             }

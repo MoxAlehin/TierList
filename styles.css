@@ -60,12 +60,12 @@
     position: relative;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center !important;
     word-wrap: break-word;
     white-space: normal;
     margin: 0px !important;
     word-break: break-word;
-    padding: 0px;
+    padding: 0px !important;
 }
 
 .tier-list-slot:not(:has(*)) {
@@ -146,4 +146,29 @@
 
 .tier-list-query textarea {
     resize: none;
+}
+
+/* Modal */
+
+.tier-list-slot-modal .tier-list {
+    margin: auto;
+    padding: 0px;
+}
+
+.tier-list-slot-modal .tier-list-slot {
+    margin: 2px !important;
+    background-color: var(--background-secondary);
+}
+
+.tier-list-slot-modal .flex {
+    display: flex;
+    border: 0px;
+    border-top: 1px var(--background-modifier-border);
+    border-style: solid;
+    padding-top: 11px;
+}
+
+.tier-list-slot-modal .flex .right {
+    flex: 1;
+    padding-left: 16px;
 }

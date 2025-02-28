@@ -206,8 +206,13 @@ export class SlotModal extends Modal {
         const contentEl = this.contentEl;
         contentEl.addClass("tier-list-slot-modal");
         this.renderEl = document.createElement('div');
-        this.renderEl.addClass('tier-list')
-        // const settingsEl = document.createElement('div');
+        this.renderEl.addClass('tier-list');
+        this.renderEl.addClass('markdown-rendered');
+        this.renderEl.addClass('markdown-preview-view');
+        const flexContainerEl = document.createElement('div');
+        flexContainerEl.addClass('flex');
+        const flexSettingsEl = document.createElement('div');
+        flexSettingsEl.addClass('right');
 
         redraw(this.renderEl, this.settings);
 
@@ -222,6 +227,7 @@ export class SlotModal extends Modal {
 
         // Use Tab setting
         new Setting(contentEl)
+            .setName('Type')
             .addButton((btn) => {
                 btn.setButtonText(this.value.isUseTab ? 'Record' : 'Tier');
                 btn.onClick(() => {
@@ -233,7 +239,7 @@ export class SlotModal extends Modal {
 
         // Type setting
         new Setting(contentEl)
-            .setName("Type")
+            .setName("Content")
             .addDropdown((dropdown) => {
                 Object.values(InputType).forEach((type) => {
                     dropdown.addOption(type, type);
@@ -298,10 +304,12 @@ export class SlotModal extends Modal {
             );
 
         this.render();
-        contentEl.appendChild(this.renderEl);
+        flexContainerEl.appendChild(this.renderEl);
+        flexContainerEl.appendChild(flexSettingsEl);
+        contentEl.appendChild(flexContainerEl);
 
         // Transform settings
-        new Setting(contentEl)
+        new Setting(flexSettingsEl)
             .setName("Transform")
             .addToggle(toggle =>
                 toggle
@@ -310,18 +318,22 @@ export class SlotModal extends Modal {
                         this.value.customTransform = val;
                         this.render();
                     })
-            )
+            );
+        new Setting(flexSettingsEl)
+            .setName("X")
             .addSlider(slider => slider
-                .setLimits(-200, 200, 1)
+                .setLimits(-200, 200, 0.01)
                 .setValue(this.value.x)
                 .sliderEl.addEventListener('input', (event) => {
                     const value = (event.target as HTMLInputElement).value;
                     this.value.x = parseFloat(value);
                     this.render();
                 })
-            )
+            );
+        new Setting(flexSettingsEl)
+            .setName("Y")
             .addSlider(slider => slider
-                .setLimits(-200, 200, 1)
+                .setLimits(-200, 200, 0.01)
                 .setValue(this.value.y)
                 .sliderEl.addEventListener('input', (event) => {
                     const value = (event.target as HTMLInputElement).value;
@@ -329,18 +341,21 @@ export class SlotModal extends Modal {
                     this.render();
                 })
             );
-        new Setting(contentEl)
+        new Setting(flexSettingsEl)
+            .setName("Rotation")
             .addSlider(slider => slider
-                .setLimits(-180, 180, 1)
+                .setLimits(-180, 180, 0.01)
                 .setValue(this.value.rotation)
                 .sliderEl.addEventListener('input', (event) => {
                     const value = (event.target as HTMLInputElement).value;
                     this.value.rotation = parseFloat(value);
                     this.render();
                 })
-            )
+            );
+        new Setting(flexSettingsEl)
+            .setName("Scale")
             .addSlider(slider => slider
-                .setLimits(0.5, 5, 0.1)
+                .setLimits(0.5, 5, 0.01)
                 .setValue(this.value.scale)
                 .sliderEl.addEventListener('input', (event) => {
                     const value = (event.target as HTMLInputElement).value;
@@ -372,7 +387,6 @@ export class SlotModal extends Modal {
         });
 
         this.updateSettings();
-        console.log(contentEl)
         this.onOpen = () => {
             setTimeout(() => {
                 this.valueComponent.inputEl.focus();
