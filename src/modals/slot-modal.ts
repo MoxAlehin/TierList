@@ -1,5 +1,5 @@
 import TierListPlugin from 'main';
-import { App, Modal, Setting, ColorComponent, TextComponent, DropdownComponent, ButtonComponent, MarkdownRenderer, Plugin } from 'obsidian';
+import { App, Modal, Setting, ColorComponent, TextComponent, DropdownComponent, ButtonComponent, MarkdownRenderer, Plugin, SliderComponent } from 'obsidian';
 import { TierListSettings } from 'settings';
 import { FileSuggest } from 'suggesters/file-suggester';
 import { renderSlot } from 'utils/render-utils';
@@ -314,16 +314,18 @@ export class SlotModal extends Modal {
             .addSlider(slider => slider
                 .setLimits(-200, 200, 1)
                 .setValue(this.value.x)
-                .onChange(async (value) => {
-                    this.value.x = value;
+                .sliderEl.addEventListener('input', (event) => {
+                    const value = (event.target as HTMLInputElement).value;
+                    this.value.x = parseFloat(value);
                     this.render();
                 })
             )
             .addSlider(slider => slider
                 .setLimits(-200, 200, 1)
                 .setValue(this.value.y)
-                .onChange(async (value) => {
-                    this.value.y = value;
+                .sliderEl.addEventListener('input', (event) => {
+                    const value = (event.target as HTMLInputElement).value;
+                    this.value.y = parseFloat(value);
                     this.render();
                 })
             );
@@ -331,16 +333,18 @@ export class SlotModal extends Modal {
             .addSlider(slider => slider
                 .setLimits(-180, 180, 1)
                 .setValue(this.value.rotation)
-                .onChange(async (value) => {
-                    this.value.rotation = value;
+                .sliderEl.addEventListener('input', (event) => {
+                    const value = (event.target as HTMLInputElement).value;
+                    this.value.rotation = parseFloat(value);
                     this.render();
                 })
             )
             .addSlider(slider => slider
                 .setLimits(0.5, 5, 0.1)
                 .setValue(this.value.scale)
-                .onChange(async (value) => {
-                    this.value.scale = value;
+                .sliderEl.addEventListener('input', (event) => {
+                    const value = (event.target as HTMLInputElement).value;
+                    this.value.scale = parseFloat(value);
                     this.render();
                 })
             );
