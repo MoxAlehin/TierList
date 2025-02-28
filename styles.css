@@ -29,7 +29,7 @@
     display: flex;
     align-items: stretch;
     gap: var(--tier-list-indent);
-    padding: 0px !important;
+    padding: 0px;
 }
 
 /* List without header */
@@ -69,7 +69,7 @@
 }
 
 .tier-list-slot:not(:has(*)) {
-    padding: 0.5em;
+    padding: 0.5em !important;
 }
 
 .tier-list-tier {
