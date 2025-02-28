@@ -1,5 +1,5 @@
-import { 
-    App, 
+import {
+    App,
     MarkdownPostProcessorContext,
     MarkdownRenderer,
     Component,
@@ -7,25 +7,30 @@ import {
 } from 'obsidian';
 import Sortable from 'sortablejs';
 import {
-    moveLinesInActiveFile, 
-    replaceLineInActiveFile, 
-    readLineFromActiveFile, 
-    deleteLineInActiveFile, 
+    moveLinesInActiveFile,
+    replaceLineInActiveFile,
+    readLineFromActiveFile,
+    deleteLineInActiveFile,
     insertLineInActiveFile,
     replaceLinesInActiveFile
-} from 'file-utils';
+} from 'utils/file-utils';
 import { SlotModal } from 'modals/slot-modal';
 import { DataviewSearchModal } from 'modals/request-modal'
 import { TierListSettings, setSetting, DEFAULT_SETTINGS } from 'settings';
 import { getAPI } from "obsidian-dataview";
 import { LocalSettingsModal } from 'modals/local-settings-modal';
 import TierListPlugin from 'main';
+import { renderSlot } from 'utils/render-utils';
 
 export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--tier-list-width-ratio', `${settings.width / 100}`);
     el.style.setProperty('--screen-width', `${screen.width}px`);
     el.style.setProperty('--tier-list-slot-count', `${settings.slots}`);
     el.style.setProperty('--tier-list-aspect-ratio', `${settings.ratio}`);
+    console.log('--tier-list-width-ratio', `${settings.width / 100}`)
+    console.log('--screen-width', `${screen.width}px`)
+    console.log('--tier-list-slot-count', `${settings.slots}`)
+    console.log('--tier-list-aspect-ratio', `${settings.ratio}`)
 }
 
 function findDataLine(el: HTMLElement): number {
@@ -74,7 +79,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
 
         // Tier List Check
         const tagEl: HTMLElement = tierList.find(`a[href="${plugin.settings.tag}"]`);
-        if (!tagEl) 
+        if (!tagEl)
             return;
         tagEl.remove();
 
@@ -112,12 +117,12 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         async function writeSettings(settings: Partial<TierListSettings>) {
             const settingsList = tierList.find(".settings");
             settings = Object.fromEntries(
-                Object.entries(settings).filter(([key, value]) => 
+                Object.entries(settings).filter(([key, value]) =>
                     DEFAULT_SETTINGS[key as keyof TierListSettings] !== value
                 ));
-            
+
             const values = Object.entries(settings)
-                                    .map(([key, value]) => `\t- ${key}: ${value}`);
+                .map(([key, value]) => `\t- ${key}: ${value}`);
             if (settingsList) {
                 const settingLine = findDataLine(settingsList) + 1;
                 await replaceLinesInActiveFile(app, settingLine, settingsList.find("ul").children.length, values);
@@ -129,36 +134,8 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             }
         }
 
-        async function renderSlot(slot: HTMLElement): Promise<HTMLElement> {
-            slot.addClass("slot");
-            // Check for internal-embed span and replace with img
-            const link = slot.find('a.internal-link');
-            if (link && !link.getAttribute('href')?.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-                const filePath = link.getAttribute('href');
-                if (filePath) {
-                    const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
-                    if (file) {
-                        const fileCache = app.metadataCache.getFileCache(file);
-                        if (fileCache && fileCache.frontmatter && fileCache.frontmatter[localSettings.property]) {
-                            let imageSrc = fileCache.frontmatter[localSettings.property];
-                            if (imageSrc.match('http'))
-                                imageSrc = `[](${imageSrc})`
-                            slot.textContent = "";
-                            await MarkdownRenderer.render(app, `!${imageSrc}`, slot, '', plugin);
-                            slot.setAttr('href', filePath);
-                        }
-                    }
-                }
-            }
-
-            // Wait for the Exacalidraw render
-            setTimeout(() => {
-                slot.findAll(".excalidraw-embedded-img").forEach(excalidrawEl => {
-                    const newElement = excalidrawEl.cloneNode(true);
-                    excalidrawEl.parentElement?.replaceChild(newElement, excalidrawEl);
-                })
-              }, 50);
-
+        async function prepareSlot(slot: HTMLElement) {
+            renderSlot(plugin, localSettings, slot)
             slot.addEventListener("contextmenu", async (evt) => {
                 evt.preventDefault();
                 evt.stopPropagation();
@@ -167,10 +144,9 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 await addSlotContextMenuOptions(menu, line);
                 menu.showAtPosition({ x: evt.clientX, y: evt.clientY });
             })
-        
+
             addClickHandler(slot);
             addCursorChangeHandler(slot);
-            return slot;
         }
 
         function addCursorChangeHandler(slot: HTMLElement) {
@@ -179,11 +155,11 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     slot.classList.add('help-cursor');
                 }
             });
-        
+
             slot.addEventListener('mouseout', (event: MouseEvent) => {
                 slot.classList.remove('help-cursor');
             });
-        
+
             slot.addEventListener('mousemove', (event: MouseEvent) => {
                 if (event.ctrlKey) {
                     slot.classList.add('help-cursor');
@@ -200,7 +176,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     event.stopPropagation();
                     return;
                 }
-                    
+
                 if (event.ctrlKey) {
                     event.stopPropagation();
 
@@ -209,9 +185,9 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     if (slot.hasAttribute('href')) {
                         const href = slot.getAttr('href') || '';
                         const file = app.metadataCache.getFirstLinkpathDest(href, '');
-                                if (file) {
-                                    app.workspace.openLinkText(href, file.path);
-                                }
+                        if (file) {
+                            app.workspace.openLinkText(href, file.path);
+                        }
                     }
                     else if (link) {
                         const href = link.getAttribute('href');
@@ -241,7 +217,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 evt.stopPropagation();
                 const line = findDataLine(slot);
                 const str = await readLineFromActiveFile(app, line);
-                new SlotModal(app, plugin, "Change slot", str || "0", async (result) => {
+                new SlotModal(plugin, localSettings, "Change slot", str || "0", async (result) => {
                     if (result != "")
                         await replaceLineInActiveFile(app, line, result);
                     else
@@ -255,13 +231,13 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             const text = names.map(name => `\t- [[${name}]]`).join("\n");
 
             if (text) {
-                await insertLineInActiveFile(app, line, text);   
+                await insertLineInActiveFile(app, line, text);
             }
         }
 
         function addListContextMenuOptions(menu: Menu, line: number) {
             menu.addItem((item) => item.setTitle("Add slot").setIcon("square-plus").onClick(() => {
-                new SlotModal(app, plugin, "Add slot", "\t", async (result) => {
+                new SlotModal(plugin, localSettings, "Add slot", "\t", async (result) => {
                     if (result != "")
                         await insertLineInActiveFile(app, line, result);
                 }).open();
@@ -296,7 +272,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         async function addSlotContextMenuOptions(menu: Menu, line: number) {
             const str = await readLineFromActiveFile(app, line);
             menu.addItem((item) => item.setTitle("Edit slot").setIcon("pencil").onClick(() => {
-                new SlotModal(app, plugin, "Change slot", str || "0", async (result) => {
+                new SlotModal(plugin, localSettings, "Change slot", str || "0", async (result) => {
                     if (result != "")
                         await replaceLineInActiveFile(app, line, result);
                     else
@@ -350,13 +326,13 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 list.addEventListener("dblclick", (evt) => {
                     evt.preventDefault();
                     const line = findDataLine(list) + list.children.length + 1;
-                    new SlotModal(app, plugin, "Add slot", "\t", async (result) => {
+                    new SlotModal(plugin, localSettings, "Add slot", "\t", async (result) => {
                         if (result != "")
                             await insertLineInActiveFile(app, line, result);
                     }).open();
                 })
                 for (const li of list.findAll("li")) {
-                    renderSlot(li);
+                    prepareSlot(li);
                 }
             };
         }
@@ -379,13 +355,13 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     const length = tier.find("ul").children.length + 1;
 
                     const oldChild = ul?.children[newIndex + (newIndex > oldIndex ? -1 : 1)];
-                    
+
                     const oldChildLength = (oldChild?.find("ul")?.children.length || 0) + 1;
                     const oldChildLine = parseInt(oldChild?.getAttr("data-line") || "0");
 
                     let newLine = oldChildLine + tierLine;
 
-                    if (newIndex >=  oldIndex) {
+                    if (newIndex >= oldIndex) {
                         newLine = newLine + oldChildLength - length;
                     }
 
@@ -414,12 +390,12 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                         node.remove();
                     }
                 })
-                
+
                 if (!unordered) {
                     const innerList = li.find("ul");
 
                     const tierDiv = document.createElement("div");
-                    tierDiv.addClass("tier");
+                    tierDiv.addClass("tier-list-tier");
                     tierDiv.textContent = text;
 
                     Array.from(li.childNodes).forEach(node => {
@@ -429,7 +405,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     })
 
                     li.prepend(tierDiv);
-                    await renderSlot(tierDiv);
+                    await prepareSlot(tierDiv);
                 }
                 else {
                     li.find("ul").addClass("unordered");
@@ -460,39 +436,39 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             const activeFile = app.workspace.getActiveFile();
             if (!activeFile) return names;
             const fileContent = await app.vault.read(activeFile);
-        
+
             const tierListLines = fileContent.split("\n").slice(sectionInfo.lineStart, sectionInfo.lineEnd + 1);
-        
+
             function extractName(line: string): string | null {
                 line = line.trim();
                 if (!line.startsWith("- ")) return null;
                 line = line.substring(2);
-        
+
                 line = line.replace(/<span[^>]*>(.*?)<\/span>/g, "$1");
-        
+
                 line = line.replace(/^!+/, "");
-        
+
                 const matchBracket = line.match(/^\[\[(.*?)(?:\s*\|\s*.*?)?\]\]/);
                 if (matchBracket) return matchBracket[1];
-                
+
                 const matchParens = line.match(/^\[[^\]]*\]\((.*?)\)/);
                 if (matchParens) return matchParens[1];
-        
+
                 return line;
             }
-        
+
             const existingNames = new Set<string>();
             for (const line of tierListLines) {
                 const name = extractName(line);
                 if (name) existingNames.add(name);
             }
-        
+
             return names.filter(name => !existingNames.has(name));
         }
 
         // HTML cleanup
         tierList.setAttr("data-line", sectionInfo.lineStart || 0);
-        tierList.addClass("tier-list");   
+        tierList.addClass("tier-list");
         tierList.findAll(".list-bullet").forEach(span => span.remove());
         tierList.findAll(".list-collapse-indicator").forEach(span => span.remove());
         tierList.findAll(":scope > ul > li:not(:has(ul))").forEach(list => {

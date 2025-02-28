@@ -8,10 +8,11 @@
     list-style: none;
 }
 
-.tier-list > ul {
+.tier-list>ul {
     font-size: 0.7em;
-    background-color: var(--background-modifier-border);  
+    background-color: var(--background-modifier-border);
     display: inline-block;
+    padding: 0px;
     --tier-list-indent: var(--hr-thickness);
     --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
 }
@@ -19,10 +20,10 @@
 .tier-list .unordered {
     width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 2 * var(--tier-list-indent)));
     min-height: 1em;
-    padding: 0px 1px; 
+    padding: 0px 1px;
 }
 
-.tier-list > ul > li {
+.tier-list>ul>li {
     margin: var(--tier-list-indent);
     background-color: var(--background-modifier-border);
     display: flex;
@@ -32,15 +33,15 @@
 }
 
 /* List without header */
-.tier-list > ul > li > ul {
+.tier-list>ul>li>ul {
     display: flex;
     flex-wrap: wrap;
     background-color: var(--background-primary);
     width: calc(var(--tier-list-slot-width) * var(--tier-list-slot-count));
 }
 
-.tier-list > ul > li > ul::before,
-.tier-list > ul > li > ul::after {
+.tier-list>ul>li>ul::before,
+.tier-list>ul>li>ul::after {
     display: none !important;
 }
 
@@ -49,7 +50,7 @@
 }
 
 /* Slot */
-.tier-list .slot {
+.tier-list-slot {
     width: var(--tier-list-slot-width);
     max-width: var(--tier-list-slot-width);
     height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
@@ -67,16 +68,16 @@
     padding: 0px;
 }
 
-.tier-list .slot:not(:has(*)) {
+.tier-list-slot:not(:has(*)) {
     padding: 0.5em;
 }
 
-.tier-list .tier {
+.tier-list-tier {
     height: inherit;
     min-height: calc(var(--tier-list-slot-width) / var(--tier-list-aspect-ratio));
 }
 
-.tier-list img {
+.tier-list-slot img {
     margin: 0;
     padding: 0;
     display: block;
@@ -87,9 +88,10 @@
     top: 0;
     left: 0;
     border-radius: 0px !important;
+    /* filter: blur(0.5px); */
 }
 
-.tier-list .slot > span {
+.tier-list-slot>span {
     padding: 0.5em;
     z-index: 1;
     position: relative;
@@ -139,9 +141,9 @@
 }
 
 .tier-list-settings .setting-item {
-    padding: 0.75em 0px 0.75em 0px !important;    
+    padding: 0.75em 0px 0.75em 0px !important;
 }
 
-.tier-list-query textarea{
+.tier-list-query textarea {
     resize: none;
 }
