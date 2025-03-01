@@ -151,8 +151,9 @@
 /* Modal */
 
 .tier-list-slot-modal .tier-list {
-    margin: auto;
-    padding: 0px;
+    margin: auto 20px;
+    padding: 0px !important;
+    width: auto;
 }
 
 .tier-list-slot-modal .tier-list-slot {
@@ -169,6 +170,14 @@
 }
 
 .tier-list-slot-modal .flex .right {
-    flex: 1;
     padding-left: 16px;
+    flex: 1;
+}
+
+.tier-list-slot-modal .tier-list-slot.move {
+    cursor: move;
+}
+
+.tier-list-slot-modal .tier-list-slot.rotate {
+    cursor: grab;
 }

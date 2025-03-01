@@ -220,13 +220,101 @@ export class SlotModal extends Modal {
 
         this.setTitle(header);
 
+        let isDragging = false;
+        let isRotating = false;
+        let mouseStartX = 0, mouseStartY = 0, startX = 0, startY = 0;
+        let startAngle = 0;
+
+        function isNearCorner(mouseX: number, mouseY: number): boolean {
+            const rect = this.renderEl.find('.tier-list-slot').getBoundingClientRect();
+            const ROTATION_THRESHOLD = 20;
+            const corners = [
+                { x: rect.left, y: rect.top },
+                { x: rect.right, y: rect.top },
+                { x: rect.left, y: rect.bottom },
+                { x: rect.right, y: rect.bottom },
+            ];
+
+            for (const corner of corners) {
+                const distance = Math.sqrt((mouseX - corner.x) ** 2 + (mouseY - corner.y) ** 2);
+                if (distance < ROTATION_THRESHOLD) return true;
+            }
+
+            return false;
+        }
+
+        this.renderEl.addEventListener("mousedown", (event: MouseEvent) => {
+            event.preventDefault();
+            if (!this.value.customTransform) return;
+
+            const rect = this.renderEl.find('.tier-list-slot').getBoundingClientRect();
+            const corners = [
+                { x: rect.left, y: rect.top },
+                { x: rect.right, y: rect.top },
+                { x: rect.left, y: rect.bottom },
+                { x: rect.right, y: rect.bottom },
+            ];
+
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            const ROTATION_THRESHOLD = 20;
+
+            for (const corner of corners) {
+                const distance = Math.sqrt((mouseX - corner.x) ** 2 + (mouseY - corner.y) ** 2);
+                if (distance < ROTATION_THRESHOLD) {
+                    isRotating = true;
+                    startAngle = Math.atan2(mouseY - rect.top - rect.height / 2, mouseX - rect.left - rect.width / 2) / Math.PI * 180;
+                    return;
+                }
+            }
+
+            isDragging = true;
+            mouseStartX = mouseX;
+            mouseStartY = mouseY;
+            startX = this.value.x;
+            startY = this.value.y;
+        });
+
+        document.addEventListener("mousemove", (event: MouseEvent) => {
+            event.preventDefault();
+            if (isDragging) {
+                this.value.x = startX + event.clientX - mouseStartX;
+                this.value.y = startY + event.clientY - mouseStartY;
+                this.render();
+            }
+
+            if (isRotating) {
+                const rect = this.renderEl.getBoundingClientRect();
+                const angle = Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2) / Math.PI * 180;
+                this.value.rotation += angle - startAngle;
+                startAngle = angle;
+                this.render();
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+            isRotating = false;
+        });
+
+        this.renderEl.addEventListener("wheel", (event: WheelEvent) => {
+            event.preventDefault();
+            if (!this.value.customTransform) return;
+            this.value.scale += event.deltaY * -0.0005;
+            this.render()
+        });
+
         const onSubmitHandler = () => {
             this.close();
             onSubmit(this.value.toString());
         };
 
+        flexContainerEl.appendChild(this.renderEl);
+        flexContainerEl.appendChild(flexSettingsEl);
+        contentEl.appendChild(flexContainerEl);
+
         // Use Tab setting
-        new Setting(contentEl)
+        new Setting(flexSettingsEl)
             .setName('Type')
             .addButton((btn) => {
                 btn.setButtonText(this.value.isUseTab ? 'Record' : 'Tier');
@@ -238,7 +326,7 @@ export class SlotModal extends Modal {
             })
 
         // Type setting
-        new Setting(contentEl)
+        new Setting(flexSettingsEl)
             .setName("Content")
             .addDropdown((dropdown) => {
                 Object.values(InputType).forEach((type) => {
@@ -263,10 +351,10 @@ export class SlotModal extends Modal {
             });
 
         // Value setting
-        this.valueSetting = new Setting(contentEl);
+        this.valueSetting = new Setting(flexSettingsEl);
 
         // Alias setting
-        new Setting(contentEl)
+        new Setting(flexSettingsEl)
             .setName("Alias")
             .addText((text) => {
                 this.aliasSetting = text;
@@ -279,7 +367,7 @@ export class SlotModal extends Modal {
             });
 
         // Color settings
-        new Setting(contentEl)
+        new Setting(flexSettingsEl)
             .setName("Color")
             .addColorPicker(picker => {
                 picker.setValue(this.value.color);
@@ -303,11 +391,6 @@ export class SlotModal extends Modal {
                     })
             );
 
-        this.render();
-        flexContainerEl.appendChild(this.renderEl);
-        flexContainerEl.appendChild(flexSettingsEl);
-        contentEl.appendChild(flexContainerEl);
-
         // Transform settings
         new Setting(flexSettingsEl)
             .setName("Transform")
@@ -318,50 +401,6 @@ export class SlotModal extends Modal {
                         this.value.customTransform = val;
                         this.render();
                     })
-            );
-        new Setting(flexSettingsEl)
-            .setName("X")
-            .addSlider(slider => slider
-                .setLimits(-200, 200, 0.01)
-                .setValue(this.value.x)
-                .sliderEl.addEventListener('input', (event) => {
-                    const value = (event.target as HTMLInputElement).value;
-                    this.value.x = parseFloat(value);
-                    this.render();
-                })
-            );
-        new Setting(flexSettingsEl)
-            .setName("Y")
-            .addSlider(slider => slider
-                .setLimits(-200, 200, 0.01)
-                .setValue(this.value.y)
-                .sliderEl.addEventListener('input', (event) => {
-                    const value = (event.target as HTMLInputElement).value;
-                    this.value.y = parseFloat(value);
-                    this.render();
-                })
-            );
-        new Setting(flexSettingsEl)
-            .setName("Rotation")
-            .addSlider(slider => slider
-                .setLimits(-180, 180, 0.01)
-                .setValue(this.value.rotation)
-                .sliderEl.addEventListener('input', (event) => {
-                    const value = (event.target as HTMLInputElement).value;
-                    this.value.rotation = parseFloat(value);
-                    this.render();
-                })
-            );
-        new Setting(flexSettingsEl)
-            .setName("Scale")
-            .addSlider(slider => slider
-                .setLimits(0.5, 5, 0.01)
-                .setValue(this.value.scale)
-                .sliderEl.addEventListener('input', (event) => {
-                    const value = (event.target as HTMLInputElement).value;
-                    this.value.scale = parseFloat(value);
-                    this.render();
-                })
             );
 
         // Submit buttons
@@ -386,6 +425,7 @@ export class SlotModal extends Modal {
             onSubmitHandler();
         });
 
+        this.render();
         this.updateSettings();
         this.onOpen = () => {
             setTimeout(() => {
