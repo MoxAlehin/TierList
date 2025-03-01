@@ -174,10 +174,15 @@
     flex: 1;
 }
 
-.tier-list-slot-modal .tier-list-slot.move {
+.tier-list-slot-modal .move {
     cursor: move;
 }
 
-.tier-list-slot-modal .tier-list-slot.rotate {
+.tier-list-slot-modal .rotate {
     cursor: grab;
+}
+
+.tier-list-slot-modal ul {
+    padding: 0px !important;
+    margin: 0px !important;
 }

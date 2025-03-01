@@ -225,8 +225,8 @@ export class SlotModal extends Modal {
         let mouseStartX = 0, mouseStartY = 0, startX = 0, startY = 0;
         let startAngle = 0;
 
-        function isNearCorner(mouseX: number, mouseY: number): boolean {
-            const rect = this.renderEl.find('.tier-list-slot').getBoundingClientRect();
+        function isNearCorner(mouseX: number, mouseY: number, el: HTMLElement): boolean {
+            const rect = el.getBoundingClientRect();
             const ROTATION_THRESHOLD = 20;
             const corners = [
                 { x: rect.left, y: rect.top },
@@ -248,24 +248,13 @@ export class SlotModal extends Modal {
             if (!this.value.customTransform) return;
 
             const rect = this.renderEl.find('.tier-list-slot').getBoundingClientRect();
-            const corners = [
-                { x: rect.left, y: rect.top },
-                { x: rect.right, y: rect.top },
-                { x: rect.left, y: rect.bottom },
-                { x: rect.right, y: rect.bottom },
-            ];
-
             const mouseX = event.clientX;
             const mouseY = event.clientY;
-            const ROTATION_THRESHOLD = 20;
 
-            for (const corner of corners) {
-                const distance = Math.sqrt((mouseX - corner.x) ** 2 + (mouseY - corner.y) ** 2);
-                if (distance < ROTATION_THRESHOLD) {
-                    isRotating = true;
-                    startAngle = Math.atan2(mouseY - rect.top - rect.height / 2, mouseX - rect.left - rect.width / 2) / Math.PI * 180;
-                    return;
-                }
+            if (isNearCorner(mouseX, mouseY, this.renderEl.find('.tier-list-slot'))) {
+                isRotating = true;
+                startAngle = Math.atan2(mouseY - rect.top - rect.height / 2, mouseX - rect.left - rect.width / 2) / Math.PI * 180;
+                return;
             }
 
             isDragging = true;
@@ -277,6 +266,15 @@ export class SlotModal extends Modal {
 
         document.addEventListener("mousemove", (event: MouseEvent) => {
             event.preventDefault();
+            if (isNearCorner(event.clientX, event.clientY, this.renderEl.find('.tier-list-slot'))) {
+                this.renderEl.addClass('rotate');
+                this.renderEl.removeClass('move');
+            }
+            else {
+                this.renderEl.addClass('move');
+                this.renderEl.removeClass('rotate');
+            }
+
             if (isDragging) {
                 this.value.x = startX + event.clientX - mouseStartX;
                 this.value.y = startY + event.clientY - mouseStartY;
@@ -295,6 +293,8 @@ export class SlotModal extends Modal {
         document.addEventListener("mouseup", () => {
             isDragging = false;
             isRotating = false;
+            this.renderEl.removeClass('move');
+            this.renderEl.removeClass('rotate');
         });
 
         this.renderEl.addEventListener("wheel", (event: WheelEvent) => {
