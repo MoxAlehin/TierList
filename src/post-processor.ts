@@ -1,10 +1,4 @@
-import {
-    App,
-    MarkdownPostProcessorContext,
-    MarkdownRenderer,
-    Component,
-    Menu
-} from 'obsidian';
+import { MarkdownPostProcessorContext, Menu } from 'obsidian';
 import Sortable from 'sortablejs';
 import {
     moveLinesInActiveFile,

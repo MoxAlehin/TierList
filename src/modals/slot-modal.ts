@@ -264,8 +264,8 @@ export class SlotModal extends Modal {
             startY = this.value.y;
         });
 
-        document.addEventListener("mousemove", (event: MouseEvent) => {
-            event.preventDefault();
+        const mouseMoveCallback = (event: MouseEvent) => {
+            // event.preventDefault();
             if (isNearCorner(event.clientX, event.clientY, this.renderEl.find('.tier-list-slot'))) {
                 this.renderEl.addClass('rotate');
                 this.renderEl.removeClass('move');
@@ -288,7 +288,9 @@ export class SlotModal extends Modal {
                 startAngle = angle;
                 this.render();
             }
-        });
+        }
+
+        document.addEventListener("mousemove", mouseMoveCallback);
 
         document.addEventListener("mouseup", () => {
             isDragging = false;
@@ -302,7 +304,7 @@ export class SlotModal extends Modal {
             if (!this.value.customTransform) return;
             this.value.scale += event.deltaY * -0.0005;
             this.render()
-        });
+        }, { passive: false });
 
         const onSubmitHandler = () => {
             this.close();
@@ -433,5 +435,8 @@ export class SlotModal extends Modal {
                 this.valueComponent.inputEl.select();
             }, 0);
         };
+        this.onClose = () => {
+            document.removeEventListener('mousemove', mouseMoveCallback);
+        }
     }
 }

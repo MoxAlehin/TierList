@@ -1,6 +1,6 @@
 {
 	"name": "tier-list",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"description": "Visual ranking and organizing content into customizable tier lists.",
 	"main": "main.js",
 	"scripts": {

@@ -282,7 +282,7 @@ export class SettingTab extends PluginSettingTab {
 		// Initialize Sortable
 		Sortable.create(tierListEl, {
 			// handle: '.drag-handle',
-			animation: 150,
+			animation: this.plugin.settings.animation,
 			onEnd: async (evt) => {
 				const oldIndex = evt.oldIndex!;
 				const newIndex = evt.newIndex!;
