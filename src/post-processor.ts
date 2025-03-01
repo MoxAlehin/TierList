@@ -309,6 +309,8 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 Sortable.create(list as HTMLElement, {
                     group: `slot-${sectionInfo?.lineStart}`,
                     animation: localSettings.animation,
+                    fallbackOnBody: true,
+                    forceFallback: true,
                     onEnd: async (evt) => {
                         const tierListLine = parseInt(evt.item.parentElement?.parentElement?.parentElement?.parentElement?.getAttr("data-line") || "0");
                         const parentLine = parseInt(evt.item.parentElement?.parentElement?.getAttr("data-line") || "0", 10);
