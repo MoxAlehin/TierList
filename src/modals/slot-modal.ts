@@ -226,6 +226,7 @@ export class SlotModal extends Modal {
         let startAngle = 0;
 
         function isNearCorner(mouseX: number, mouseY: number, el: HTMLElement): boolean {
+            if (!el) return false;
             const rect = el.getBoundingClientRect();
             const ROTATION_THRESHOLD = 20;
             const corners = [

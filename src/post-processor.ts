@@ -65,6 +65,8 @@ export async function searchFiles(from: string, where: string): Promise<string[]
 
 export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => void {
     const app = plugin.app;
+    let scroll = 0;
+
     return async (tierList: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 
         // Tier List Check
@@ -78,6 +80,8 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             return;
 
         const localSettings: TierListSettings = { ...plugin.settings };
+        const scrollableEl = document.documentElement.find('.markdown-preview-view');
+        scrollableEl.scrollTo(0, scroll);
 
         async function writeSetting(key: string, value: string) {
             const settingsList = tierList.find(".settings");
@@ -88,11 +92,13 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     const [fileKey, fileValue] = text.split(':').map(item => item.trim());
                     if (fileKey.toLowerCase() == key.toLowerCase()) {
                         const settingLine = findDataLine(setting);
+                        scroll = scrollableEl.scrollTop;
                         await replaceLineInActiveFile(app, settingLine, valueText);
                         return;
                     }
                 }
                 const settingLine = findDataLine(settingsList) + 1;
+                scroll = scrollableEl.scrollTop;
                 await insertLineInActiveFile(app, settingLine, valueText);
             }
             else {
@@ -115,11 +121,13 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 .map(([key, value]) => `\t- ${key}: ${value}`);
             if (settingsList) {
                 const settingLine = findDataLine(settingsList) + 1;
+                scroll = scrollableEl.scrollTop;
                 await replaceLinesInActiveFile(app, settingLine, settingsList.find("ul").children.length, values);
             }
             else {
                 values.unshift(`- ${localSettings.settings}`);
                 const settingsLine = ctx.getSectionInfo(tierList)?.lineEnd || 0;
+                scroll = scrollableEl.scrollTop;
                 await insertLineInActiveFile(app, settingsLine + 1, values.join('\n'));
             }
         }
@@ -208,6 +216,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 const line = findDataLine(slot);
                 const str = await readLineFromActiveFile(app, line);
                 new SlotModal(plugin, localSettings, "Change slot", str || "0", async (result) => {
+                    scroll = scrollableEl.scrollTop;
                     if (result != "")
                         await replaceLineInActiveFile(app, line, result);
                     else
@@ -221,6 +230,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             const text = names.map(name => `\t- [[${name}]]`).join("\n");
 
             if (text) {
+                scroll = scrollableEl.scrollTop;
                 await insertLineInActiveFile(app, line, text);
             }
         }
@@ -228,13 +238,16 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         function addListContextMenuOptions(menu: Menu, line: number) {
             menu.addItem((item) => item.setTitle("Add slot").setIcon("square-plus").onClick(() => {
                 new SlotModal(plugin, localSettings, "Add slot", "\t", async (result) => {
-                    if (result != "")
+                    if (result != "") {
+                        scroll = scrollableEl.scrollTop;
                         await insertLineInActiveFile(app, line, result);
+                    }
                 }).open();
             }));
 
             menu.addItem((item) => item.setTitle("Settings").setIcon("settings").onClick(() => {
                 new LocalSettingsModal(app, localSettings, (updatedSettings: Partial<TierListSettings>) => {
+                    scroll = scrollableEl.scrollTop;
                     writeSettings(updatedSettings);
                 }).open();
             }))
@@ -263,20 +276,26 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             const str = await readLineFromActiveFile(app, line);
             menu.addItem((item) => item.setTitle("Edit slot").setIcon("pencil").onClick(() => {
                 new SlotModal(plugin, localSettings, "Change slot", str || "0", async (result) => {
-                    if (result != "")
+                    if (result != "") {
+                        scroll = scrollableEl.scrollTop;
                         await replaceLineInActiveFile(app, line, result);
-                    else
+                    }
+                    else {
+                        scroll = scrollableEl.scrollTop;
                         await deleteLineInActiveFile(app, line);
+                    }
                 }).open();
             }));
             menu.addItem((item) => {
                 (item as any).dom.addClass("option-red");
                 item.setTitle("Delete slot").setIcon("trash-2").onClick(async () => {
+                    scroll = scrollableEl.scrollTop;
                     await deleteLineInActiveFile(app, line);
                 })
             });
             menu.addItem((item) => {
                 item.setTitle("Duplicate slot").setIcon("copy").onClick(async () => {
+                    scroll = scrollableEl.scrollTop;
                     await insertLineInActiveFile(app, line, await readLineFromActiveFile(app, line) || '');
                 })
             });
@@ -302,6 +321,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                         if (oldLine < newLine && oldParentIndex == parentLine)
                             newLine = newLine + 1;
 
+                        scroll = scrollableEl.scrollTop;
                         await moveLinesInActiveFile(app, oldLine, 1, newLine);
                     }
                 });
@@ -317,8 +337,10 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     evt.preventDefault();
                     const line = findDataLine(list) + list.children.length + 1;
                     new SlotModal(plugin, localSettings, "Add slot", "\t", async (result) => {
-                        if (result != "")
+                        if (result != "") {
+                            scroll = scrollableEl.scrollTop;
                             await insertLineInActiveFile(app, line, result);
+                        }
                     }).open();
                 })
                 for (const li of list.findAll("li")) {
@@ -355,6 +377,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                         newLine = newLine + oldChildLength - length;
                     }
 
+                    scroll = scrollableEl.scrollTop;
                     await moveLinesInActiveFile(app, oldLine, length, newLine, false);
                 }
             });
@@ -468,8 +491,9 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
 
         await initializeTierSlots();
         await initializeSlots();
-        initializeRows();
+        await initializeRows();
 
         redraw(tierList, localSettings);
+        scrollableEl.scrollTo(0, scroll);
     }
 }
