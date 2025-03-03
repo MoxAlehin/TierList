@@ -1,4 +1,4 @@
-import { 
+import {
     MarkdownRenderer,
     Plugin
 } from 'obsidian';
@@ -35,8 +35,13 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
             const newElement = excalidrawEl.cloneNode(true);
             excalidrawEl.parentElement?.replaceChild(newElement, excalidrawEl);
         })
-      }, 50);
-    
+    }, 50);
+
+    const child = slot.find('[style*="background"]')
+    if (child) {
+        slot.style.backgroundColor = child.style.backgroundColor;
+    }
+
     return slot;
 }
 
