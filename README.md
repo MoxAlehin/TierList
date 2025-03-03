@@ -20,7 +20,7 @@ Using markdown links within a Tier List ensures that all items maintain their re
 
 To use the Tier List plugin, you can either insert the `#tier-list` *(can be changed in plugin settings)* tag anywhere within a numbered list, which marks the list for tier rendering, or use the command `Insert tier list` to automatically create a list preformatted for ranking.
 
-Tier List also includes a “To Rank” section, where items that have not yet been placed in a specific tier will be shown. This section collapses automatically once it becomes empty, keeping the view clean and focused on ranked items.
+Tier List also includes a `To Rank` section, where items that have not yet been placed in a specific tier will be shown. This section collapses automatically once it becomes empty, keeping the view clean and focused on ranked items.
 
 ![How To Use](Images/TierList_HowToUse.gif)
 
@@ -37,16 +37,16 @@ If you need **fast text input** without additional styling, **Editing View** is 
 
 ## Settings
 
-The plugin provides several customization options. You can define default settings for all Tier Lists globally, but you can also override these settings on a per-list basis. To do so, right-click on the tier list in the reading view and select settings.
+The plugin provides several customization options. You can define default settings for all Tier Lists globally, but you can also override these settings on a per-list basis. To do so, right-click on the tier list in the reading view and select `Settings`.
 
 ![Local Settings](Images/TierList_Local_Settings.png)
 
 ## Dataview Integration
-This plugin integrates with Dataview, allowing you to supplement your tier lists with missing notes using Dataview queries.
+This plugin integrates with [Dataview](https://blacksmithgu.github.io/obsidian-dataview/queries/data-commands/#from), allowing you to supplement your tier lists with missing notes using Dataview queries.
 
 ### How It Works
-1. Right-click in the relevant area to open the context menu and select "Request".
-2. In the modal window, configure the query settings (from, where).
+1. Right-click in the relevant area to open the context menu and select `Request`.
+2. In the modal window, configure the query settings (`From`, `Where`).
 3. The plugin will retrieve matching notes and add missing entries to your tier list.
 
 ![Dataview Modal](Images/TierList_DataviewModal.png)
@@ -54,4 +54,4 @@ This plugin integrates with Dataview, allowing you to supplement your tier lists
 ### Settings Persistence
 - The last used query is saved in the settings list for future use.
 - You can quickly reapply previous queries without manually re-entering them.
-- In addition to using the modal window, you can quickly add missing entries by **right-clicking** in the relevant area and selecting **"Add Missing"** from the context menu.
+- In addition to using the modal window, you can quickly add missing entries by **right-clicking** in the relevant area and selecting `Add Missing` from the context menu.
