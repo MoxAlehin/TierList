@@ -20,14 +20,14 @@ class ParsedInput {
 
     defaultColor: string = getComputedStyle(document.body).getPropertyValue("--background-secondary");
     color: string = this.defaultColor;
-    useCustomColor: boolean;
 
     isUseTab: boolean;
     x: number = 0;
     y: number = 0;
     rotation: number = 0;
     scale: number = 1;
-    customTransform: boolean = false;
+    mirrorX: boolean = false;
+    mirrorY: boolean = false;
 
     constructor(rawValue: string) {
         this.isUseTab = rawValue.startsWith("\t");
@@ -48,10 +48,8 @@ class ParsedInput {
                 const [key, value] = style.split(":").map(s => s.trim());
                 if (key === "background" || key === 'background-color') {
                     this.color = value;
-                    this.useCustomColor = true;
                 } else if (key === "transform") {
                     this.parseTransform(value);
-                    this.customTransform = true;
                 }
             }
         }
@@ -84,15 +82,16 @@ class ParsedInput {
 
         this.value = this.value.trim();
         if (this.alias) this.alias = this.alias.trim();
+    }
 
-        this.useCustomColor = this.color !== this.defaultColor;
+    public isDefaultTransform():boolean {
+        return !this.mirrorX && !this.mirrorY && Number(this.rotation.toFixed(2)) == 0 && Number(this.scale.toFixed(2)) == 1 && this.x == 0 && this.y == 0;
     }
 
     private parseTransform(transformString: string) {
         const translateMatch = transformString.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
         const rotateMatch = transformString.match(/rotate\(([-\d.]+)deg\)/);
-        const scaleMatch = transformString.match(/scale\(([-\d.]+)\)/);
-
+        const scaleMatch = transformString.match(/scale\(([-\d.]+),? ?([-\d.]+)?\)/);
         if (translateMatch) {
             this.x = parseFloat(translateMatch[1]);
             this.y = parseFloat(translateMatch[2]);
@@ -101,11 +100,22 @@ class ParsedInput {
             this.rotation = parseFloat(rotateMatch[1]);
         }
         if (scaleMatch) {
-            this.scale = parseFloat(scaleMatch[1]);
+            const scale = parseFloat(scaleMatch[1]);
+            this.scale = Math.abs(scale);
+            if (scaleMatch[2]) {
+                this.mirrorX = parseFloat(scaleMatch[1]) < 0;
+                this.mirrorY = parseFloat(scaleMatch[2]) < 0;
+            }
+            else if (scale < 0) {
+                this.mirrorX = true;
+                this.mirrorY = true;
+            }
         }
     }
 
     private getTransformStyle(): string {
+        if (this.isDefaultTransform())
+            return '';
         const transforms = [];
         const x = Math.round(this.x);
         const y = Math.round(this.y);
@@ -118,11 +128,18 @@ class ParsedInput {
         if (rotation !== 0) {
             transforms.push(`rotate(${rotation}deg)`);
         }
-        if (scale !== 1) {
-            transforms.push(`scale(${scale})`);
+        if (scale !== 1 || !this.mirrorX || !this.mirrorY) {
+            if (this.mirrorX && this.mirrorY)
+                transforms.push(`scale(${-scale})`);
+            else if (!this.mirrorX && !this.mirrorY)
+                transforms.push(`scale(${scale})`);
+            else if (this.mirrorX)
+                transforms.push(`scale(${-scale}, ${scale})`);
+            else
+                transforms.push(`scale(${scale}, ${-scale})`);
         }
 
-        return transforms.length ? `transform: ${transforms.join(" ")};` : "";
+        return `transform: ${transforms.join(" ")};`.trim();
     }
 
     toString(): string {
@@ -149,15 +166,13 @@ class ParsedInput {
 
         let styles: string[] = [];
 
-        if (this.useCustomColor) {
+        if (this.color != this.defaultColor) {
             styles.push(`background:${this.color};`);
         }
-        if (this.customTransform) {
-            styles.push(this.getTransformStyle());
-        }
+        styles.push(this.getTransformStyle());
 
         if (styles.length > 0) {
-            output = `<span style="${styles.join(" ")}">${output}</span>`;
+            output = `<span style="${styles.join(" ").trim()}">${output}</span>`;
         }
 
         output = `${this.isUseTab ? "\t" : ""}- ${output}`;
@@ -175,8 +190,16 @@ export class SlotModal extends Modal {
     private plugin: TierListPlugin;
     private settings: TierListSettings;
     private renderEl: HTMLElement;
+    private colorResetButton: ButtonComponent;
+    private transformResetButton: ButtonComponent;
+    private mirrorXButton: ButtonComponent;
+    private mirrorYButton: ButtonComponent;
 
     async render() {
+        if (this.value.isDefaultTransform())
+            this.transformResetButton.removeCta()
+        else
+            this.transformResetButton.setCta();
         const app = this.plugin.app;
         const str = this.value.toString().replace(/^\t/, '');
         this.renderEl.replaceChildren();
@@ -262,8 +285,6 @@ export class SlotModal extends Modal {
 
         this.renderEl.addEventListener("mousedown", (event: MouseEvent) => {
             event.preventDefault();
-            if (!this.value.customTransform) return;
-
             const rect = this.renderEl.find('.tier-list-slot').getBoundingClientRect();
             const mouseX = event.clientX;
             const mouseY = event.clientY;
@@ -318,8 +339,8 @@ export class SlotModal extends Modal {
 
         this.renderEl.addEventListener("wheel", (event: WheelEvent) => {
             event.preventDefault();
-            if (!this.value.customTransform) return;
             this.value.scale += event.deltaY * -0.0005;
+            this.value.scale = Math.max(this.value.scale, 0)
             this.render()
         }, { passive: false });
 
@@ -389,38 +410,86 @@ export class SlotModal extends Modal {
         new Setting(flexSettingsEl)
             .setName("Color")
             .addColorPicker(picker => {
-                picker.setValue(this.value.color);
                 this.colorPicker = picker;
-                picker.setDisabled(!this.value.useCustomColor);
+                picker.setValue(this.value.color);
                 picker.onChange((value) => {
                     this.value.color = value;
+                    if (value != this.value.defaultColor) {
+                        this.colorResetButton.setCta();
+                    }
                     this.render();
                 })
             })
-            .addToggle(toggle =>
-                toggle
-                    .setValue(this.value.useCustomColor)
-                    .onChange(val => {
-                        this.value.useCustomColor = val;
-                        const tempColor = this.value.color;
-                        this.colorPicker.setValue(val ? this.value.color : this.value.defaultColor)
-                        this.value.color = tempColor;
-                        this.colorPicker.setDisabled(!val)
+            .addButton((btn) => {
+                this.colorResetButton = btn;
+                if (this.value.color != this.value.defaultColor) {
+                    btn.setCta();
+                }
+                btn
+                    .setIcon("undo-2")
+                    .onClick(() => {
+                        this.value.color = this.value.defaultColor;
+                        this.colorPicker.setValue(this.value.color);
+                        btn.removeCta();
                         this.render();
                     })
-            );
+            });
 
         // Transform settings
         new Setting(flexSettingsEl)
             .setName("Transform")
-            .addToggle(toggle =>
-                toggle
-                    .setValue(this.value.customTransform)
-                    .onChange(val => {
-                        this.value.customTransform = val;
+            .addButton((btn) => {
+                this.mirrorXButton = btn;
+                btn
+                    .setIcon("flip-horizontal")
+                    .onClick(() => {
+                        this.value.mirrorX = !this.value.mirrorX;
+                        if (this.value.mirrorX)
+                            btn.setCta();
+                        else
+                            btn.removeCta();
                         this.render();
                     })
-            );
+                if (this.value.mirrorX) {
+                    btn.setCta();
+                }
+            })
+            .addButton((btn) => {
+                this.mirrorYButton = btn;
+                btn
+                    .setIcon("flip-vertical")
+                    .onClick(() => {
+                        this.value.mirrorY = !this.value.mirrorY;
+                        if (this.value.mirrorY)
+                            btn.setCta();
+                        else
+                            btn.removeCta();
+                        this.render();
+                    })
+                if (this.value.mirrorY) {
+                    btn.setCta();
+                }
+            })
+            .addButton((btn) => {
+                this.transformResetButton = btn;
+                btn
+                    .setIcon("undo-2")
+                    .onClick(() => {
+                        this.value.x = 0;
+                        this.value.y = 0;
+                        this.value.rotation = 0;
+                        this.value.scale = 1;
+                        this.value.mirrorX = false;
+                        this.value.mirrorY = false;
+                        this.mirrorXButton.removeCta();
+                        this.mirrorYButton.removeCta();
+                        btn.removeCta();
+                        this.render();
+                    })
+                    if (!this.value.isDefaultTransform()) {
+                        btn.setCta();
+                    }
+            });
 
         // Submit buttons
         new Setting(contentEl)
