@@ -4,28 +4,32 @@ Data: 8
 ---
 
 - ![](https://static.wikia.nocookie.net/the-canny-incredible/images/5/50/Phase_5.png/revision/latest?cb=20230830134900)
-	- <span style="background-color: #2954ff;">![Gif](https://i.imgur.com/OciHCvJ.gif)</span>
-	- [[Gif Cover Note]]  
--  ![](https://static.wikia.nocookie.net/the-canny-incredible/images/b/b1/Phase_4.png/revision/latest/thumbnail/width/360/height/360?cb=20230830134830)
-	- [[Excalidraw Cover Note]]
-	- ![[Excalidraw Drawing#^group=iWuuktGAlvz1_eYeG1KEA]]
+	- <span style="background:#a43d3d; transform: translate(-6px, 3px) rotate(-31.01deg) scale(-0.95);">qewqweqewqeqeqeqeqweqweqweqweqweqweq</span>
+	- <span style="transform: translate(2.36px, -2.52px) rotate(-24.15deg) scale(1.57);">[[Gif Cover Note]]</span>
+	- <span style="background:#d76060; transform: translate(2px, 2px) rotate(-138.87deg);">![Gif](https://i.imgur.com/OciHCvJ.gif)</span>
+	- ![asdasdasd](https://www.pngall.com/wp-content/uploads/4/Jason-Statham-PNG-Image.png)
+	- <span style="transform: translate(58px, 130px) rotate(-17.53deg) scale(2.85);">![](https://www.pngall.com/wp-content/uploads/4/Jason-Statham-PNG-Image.png)</span>
 -   ![](https://static.wikia.nocookie.net/the-canny-incredible/images/e/e7/Phase_3.jpeg/revision/latest?cb=20230830134722)
 	- [[Internal Cover Note]]
 	- [[Examples | This File Cover]]
 	- [[External Cover Note]]
-	- ![[Image.jpg | Internal Image]]
 	- ![External Image](https://howlongtobeat.com/games/44590_Prey_(2017).jpg)
+-  ![](https://static.wikia.nocookie.net/the-canny-incredible/images/b/b1/Phase_4.png/revision/latest/thumbnail/width/360/height/360?cb=20230830134830)
+	- <span style="transform: translate(8.00px, 3.00px) rotate(-28.01deg) scale(1.00);">![[Excalidraw Drawing]]</span>
+	- [[Excalidraw Cover Note]]
+	- <span style="transform: translate(0px, 1px) rotate(-39.98deg) scale(1.3);">qweqweasd sdf sdf sdf sdf sdf sdf sdf</span>
 -  ![](https://static.wikia.nocookie.net/the-canny-incredible/images/b/b0/Phase_1_old.webp/revision/latest?cb=20231217153841)
-	- <span style="background-color: #52017e;">![[SpaceSniffer.exe | Executable file]]</span>
+	- ![[Excalidraw Drawing#^group=iWuuktGAlvz1_eYeG1KEA]]
+	- <span style="background-color:#52017e;">![[SpaceSniffer.exe | Executable file]]</span>
+	- ![[Image.jpg | Internal Image]]
+	- Loooooooooooooooooooooooooooooooooooooooooooooooong
 - ![](https://static.wikia.nocookie.net/the-uncanny-incredible/images/a/ab/Image_phase_3_mr_incredible_becoming_uncanny_by_abbysek_dex8lji-fullview.jpg/revision/latest?cb=20240731035318)
-	-  ==text text text text text text text text text text text text text text text text==
-	- <span style="background-color: #435b20;"> Loooooooooooooooooooooooooooooooooooooooooooooooong</span>
+	- ==text text text text text text text text text text text text text text text text==
 - <span style="background-color: #8f0000;">S</span>
-	- <span style="background-color: #583c3c;">qwe</span>
--  Settings #tier-list 
-	- From: ""
-	- Where: Data > 3
-	- Ratio: 1
-	- Width: 50
-	- Slots: 7
+	- <span style="background:#177d76;">*Text* ~~Text~~ **Text** ***Text***</span>
+-  Settings #tier-list
+	- width: 60
+	- slots: 7
+	- from: ""
+	- where: Data > 3
 -  To Rank
