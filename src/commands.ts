@@ -22,7 +22,7 @@ const constructTierList = (settings: TierListSettings) => {
     let text = '';
     settings.tiers.forEach(tier => {
         if (settings.useColors)
-            text += `- <span style="background-color: ${tier.color};">${tier.name}</span>\n`;
+            text += `- <span style="background: ${tier.color};">${tier.name}</span>\n`;
         else
             text += `- ${tier.name}\n`;
     })

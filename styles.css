@@ -91,6 +91,10 @@
     /* filter: blur(0.5px); */
 }
 
+.tier-list-slot > span[style*="transform"] img {
+    object-fit: contain;
+}
+
 .tier-list-slot>span {
     padding: 0.5em;
     z-index: 1;

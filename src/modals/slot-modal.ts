@@ -46,7 +46,7 @@ class ParsedInput {
             const styles = styleString.split(";").map(s => s.trim()).filter(s => s);
             for (const style of styles) {
                 const [key, value] = style.split(":").map(s => s.trim());
-                if (key === "background-color") {
+                if (key === "background" || key === 'background-color') {
                     this.color = value;
                     this.useCustomColor = true;
                 } else if (key === "transform") {
@@ -106,7 +106,7 @@ class ParsedInput {
     }
 
     private getTransformStyle(): string {
-        return `transform: translate(${this.x}px, ${this.y}px) rotate(${this.rotation}deg) scale(${this.scale});`;
+        return `transform: translate(${Math.round(this.x)}px, ${Math.round(this.y)}px) rotate(${this.rotation.toFixed(2)}deg) scale(${this.scale.toFixed(2)});`;
     }
 
     toString(): string {
@@ -134,7 +134,7 @@ class ParsedInput {
         let styles: string[] = [];
 
         if (this.useCustomColor) {
-            styles.push(`background-color:${this.color};`);
+            styles.push(`background:${this.color};`);
         }
         if (this.customTransform) {
             styles.push(this.getTransformStyle());
