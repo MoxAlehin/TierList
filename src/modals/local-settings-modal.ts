@@ -1,9 +1,9 @@
 import { App, Modal, Setting } from "obsidian";
 import { TierListSettings, DEFAULT_SETTINGS } from 'settings';
 
-type EditableSettings = "width" | "slots" | "ratio" | "from" | "where";
+type EditableSettings = "width" | "slots" | "ratio" | "from" | "where" | "image";
 
-const AVAILABLE_SETTINGS: EditableSettings[] = ["width", "slots", "ratio", "from", "where"];
+const AVAILABLE_SETTINGS: EditableSettings[] = ["width", "slots", "ratio", "from", "where", "image"];
 
 export class LocalSettingsModal extends Modal {
 	private settings: TierListSettings;

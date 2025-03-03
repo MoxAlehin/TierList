@@ -11,7 +11,7 @@ interface TierItem {
 export interface TierListSettings {
 	tiers: TierItem[];
 	useColors: boolean;
-	property: string;
+	image: string;
 	unordered: string;
 	tag: string;
 	width: number;
@@ -33,7 +33,7 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 		{ name: 'D', color: '#127c36' },
 	],
 	useColors: true,
-	property: 'Image',
+	image: 'Image',
 	unordered: 'To Rank',
 	tag: '#tier-list',
 	width: 70,
@@ -122,9 +122,9 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc('Obsidian property which is used as Image reference')
 			.addText(text => {
 				text
-					.setValue(this.plugin.settings.property)
+					.setValue(this.plugin.settings.image)
 					.onChange(async value => {
-						this.plugin.settings.property = value;
+						this.plugin.settings.image = value;
 						await this.plugin.saveSettings();
 					});
 			});

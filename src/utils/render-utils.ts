@@ -17,8 +17,8 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
             if (file) {
                 const fileCache = app.metadataCache.getFileCache(file);
                 const parent = link.parentElement;
-                if (fileCache && fileCache.frontmatter && fileCache.frontmatter[settings.property] && parent) {
-                    let imageSrc = fileCache.frontmatter[settings.property];
+                if (fileCache && fileCache.frontmatter && fileCache.frontmatter[settings.image] && parent) {
+                    let imageSrc = fileCache.frontmatter[settings.image];
                     if (imageSrc.match('http'))
                         imageSrc = `[](${imageSrc})`
                     parent.textContent = '';
