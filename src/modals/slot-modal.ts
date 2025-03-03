@@ -106,7 +106,23 @@ class ParsedInput {
     }
 
     private getTransformStyle(): string {
-        return `transform: translate(${Math.round(this.x)}px, ${Math.round(this.y)}px) rotate(${this.rotation.toFixed(2)}deg) scale(${this.scale.toFixed(2)});`;
+        const transforms = [];
+        const x = Math.round(this.x);
+        const y = Math.round(this.y);
+        const rotation = Number(this.rotation.toFixed(2));
+        const scale = Number(this.scale.toFixed(2));
+
+        if (x !== 0 || y !== 0) {
+            transforms.push(`translate(${x}px, ${y}px)`);
+        }
+        if (rotation !== 0) {
+            transforms.push(`rotate(${rotation}deg)`);
+        }
+        if (scale !== 1) {
+            transforms.push(`scale(${scale})`);
+        }
+
+        return transforms.length ? `transform: ${transforms.join(" ")};` : "";
     }
 
     toString(): string {
