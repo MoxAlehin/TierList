@@ -128,7 +128,7 @@ class ParsedInput {
         if (rotation !== 0) {
             transforms.push(`rotate(${rotation}deg)`);
         }
-        if (scale !== 1 || !this.mirrorX || !this.mirrorY) {
+        if (scale !== 1 || this.mirrorX || this.mirrorY) {
             if (this.mirrorX && this.mirrorY)
                 transforms.push(`scale(${-scale})`);
             else if (!this.mirrorX && !this.mirrorY)
