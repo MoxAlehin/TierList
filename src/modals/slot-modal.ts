@@ -170,9 +170,10 @@ class ParsedInput {
             styles.push(`background:${this.color};`);
         }
         styles.push(this.getTransformStyle());
+        const style = styles.join(" ").trim();
 
-        if (styles.length > 0) {
-            output = `<span style="${styles.join(" ").trim()}">${output}</span>`;
+        if (style) {
+            output = `<span style="${style}">${output}</span>`;
         }
 
         output = `${this.isUseTab ? "\t" : ""}- ${output}`;
