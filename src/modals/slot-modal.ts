@@ -1,9 +1,9 @@
 import TierListPlugin from 'main';
 import { Modal, Setting, ColorComponent, TextComponent, ButtonComponent, MarkdownRenderer, Component } from 'obsidian';
 import { TierListSettings } from 'settings';
-import { FileSuggest } from 'suggesters/file-suggester';
 import { renderSlot } from 'utils/render-utils';
 import { redraw } from 'post-processor';
+import { FileInputSuggest } from 'utils/suggest';
 
 export enum InputType {
     Text = "Text",
@@ -84,7 +84,7 @@ class ParsedInput {
         if (this.alias) this.alias = this.alias.trim();
     }
 
-    public isDefaultTransform():boolean {
+    public isDefaultTransform(): boolean {
         return !this.mirrorX && !this.mirrorY && Number(this.rotation.toFixed(2)) == 0 && Number(this.scale.toFixed(2)) == 1 && this.x == 0 && this.y == 0;
     }
 
@@ -205,7 +205,7 @@ export class SlotModal extends Modal {
         const app = this.plugin.app;
         const str = this.value.toString().replace(/^\t/, '');
         this.renderEl.replaceChildren();
-        await MarkdownRenderer.render(app, str, this.renderEl, '', this.component); 
+        await MarkdownRenderer.render(app, str, this.renderEl, '', this.component);
         await renderSlot(this.plugin, this.settings, this.renderEl.find('li'));
     }
 
@@ -215,11 +215,7 @@ export class SlotModal extends Modal {
             .setName("Value")
             .addText((text) => {
                 if (this.value.type == InputType.InternalEmbed || this.value.type == InputType.InternalLink) {
-                    try {
-                        new FileSuggest(this.app, text.inputEl);
-                    } catch (e) {
-                        console.error(e);
-                    }
+                    new FileInputSuggest(this.app, text.inputEl);
                 }
                 this.valueComponent = text;
                 text.setValue(this.value.value);
@@ -489,9 +485,9 @@ export class SlotModal extends Modal {
                         btn.removeCta();
                         this.render();
                     })
-                    if (!this.value.isDefaultTransform()) {
-                        btn.setCta();
-                    }
+                if (!this.value.isDefaultTransform()) {
+                    btn.setCta();
+                }
             });
 
         // Submit buttons
