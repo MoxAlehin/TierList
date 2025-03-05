@@ -1,5 +1,5 @@
 import TierListPlugin from 'main';
-import { App, Modal, Setting, ColorComponent, TextComponent, DropdownComponent, ButtonComponent, MarkdownRenderer, Plugin, SliderComponent } from 'obsidian';
+import { Modal, Setting, ColorComponent, TextComponent, ButtonComponent, MarkdownRenderer, Component } from 'obsidian';
 import { TierListSettings } from 'settings';
 import { FileSuggest } from 'suggesters/file-suggester';
 import { renderSlot } from 'utils/render-utils';
@@ -195,6 +195,7 @@ export class SlotModal extends Modal {
     private transformResetButton: ButtonComponent;
     private mirrorXButton: ButtonComponent;
     private mirrorYButton: ButtonComponent;
+    private component: Component;
 
     async render() {
         if (this.value.isDefaultTransform())
@@ -204,7 +205,7 @@ export class SlotModal extends Modal {
         const app = this.plugin.app;
         const str = this.value.toString().replace(/^\t/, '');
         this.renderEl.replaceChildren();
-        await MarkdownRenderer.render(app, str, this.renderEl, '', this.plugin);
+        await MarkdownRenderer.render(app, str, this.renderEl, '', this.component); 
         await renderSlot(this.plugin, this.settings, this.renderEl.find('li'));
     }
 
@@ -253,6 +254,7 @@ export class SlotModal extends Modal {
         flexContainerEl.addClass('flex');
         const flexSettingsEl = document.createElement('div');
         flexSettingsEl.addClass('right');
+        this.component = new Component();
 
         redraw(this.renderEl, this.settings);
 
@@ -523,6 +525,7 @@ export class SlotModal extends Modal {
             }, 0);
         };
         this.onClose = () => {
+            this.component.unload();
             document.removeEventListener('mousemove', mouseMoveCallback);
         }
     }
