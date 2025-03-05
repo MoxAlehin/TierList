@@ -14,7 +14,8 @@ export async function moveLinesInActiveFile(app: App, startIndex: number, count:
             newIndex -= count;
         }
 
-        return lines.splice(newIndex, 0, ...removedLines).join("\n");
+        lines.splice(newIndex, 0, ...removedLines);
+        return lines.join("\n");
     })
 }
 
