@@ -98,7 +98,7 @@ export class SettingTab extends PluginSettingTab {
 		containerEl.addClass("tier-list-settings")
 
 		// Default Settings Header/////////////////////////////////////////////////////////////////////////////////////
-		new Setting(containerEl).setName('Default settings').setHeading();
+		// new Setting(containerEl).setName('Global').setHeading();
 
 		// Tier List Animation Duration(Integer)
 		new Setting(containerEl)
@@ -215,8 +215,8 @@ export class SettingTab extends PluginSettingTab {
 				});
 			});
 
-		// Default Tiers Header/////////////////////////////////////////////////////////////////////////////////////
-		new Setting(containerEl).setName('Default tiers').setHeading();
+		// Default Tier List Header/////////////////////////////////////////////////////////////////////////////////////
+		new Setting(containerEl).setName('Template').setHeading();
 
 		new Setting(containerEl)
 				.setName(`Use coloring`)
