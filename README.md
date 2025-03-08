@@ -29,7 +29,7 @@ Tier List also includes a `To Rank` section, where items that have not yet been 
 The Tier List plugin supports interaction in both **Editing View** and **Reading View**, each offering different workflows.
 
 - In **Editing View**, you can create and modify the list just like a regular markdown list—simply type items, add text fields, embed images, etc. This mode is ideal for quickly writing and organizing content without extra formatting.
-- In **Reading View**, interaction is handled through a **right-click menu**, where you can choose options and edit details in **modal windows**. For quick edits, you can also **double-click** on an item to modify it instantly.
+- In **Reading View**, interaction is handled through a **right-click menu**, where you can choose options and edit details in **modal windows**. For quick edits, you can also **double-click** on an item to modify it instantly. You can navigate to a note or a linked file by `Ctrl/⌘ + Click` on the corresponding slot.
 
 If you need **fast text input** without additional styling, **Editing View** is the best choice. However, if you want **more customization**, including colors, transformations, and extra features, **Reading View with modal editing** provides a better experience.
 
