@@ -203,9 +203,13 @@ export class SlotModal extends Modal {
             this.transformResetButton.setCta();
         const app = this.plugin.app;
         const str = this.value.toString().replace(/^\t/, '');
+        const tempEl = document.createElement('div');
+        await MarkdownRenderer.render(app, str, tempEl, '', this.component);
+        await renderSlot(this.plugin, this.settings, tempEl.find('li'));
         this.renderEl.replaceChildren();
-        await MarkdownRenderer.render(app, str, this.renderEl, '', this.component);
-        await renderSlot(this.plugin, this.settings, this.renderEl.find('li'));
+        while (tempEl.firstChild) {
+            this.renderEl.appendChild(tempEl.firstChild);
+        }
     }
 
     updateSettings() {

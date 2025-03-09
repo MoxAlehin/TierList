@@ -1,10 +1,5 @@
-import {
-    MarkdownRenderer,
-    Plugin
-} from 'obsidian';
-
+import { MarkdownRenderer, Plugin } from 'obsidian';
 import { TierListSettings } from 'settings';
-import { text } from 'stream/consumers';
 
 export async function renderSlot(plugin: Plugin, settings: TierListSettings, slot: HTMLElement): Promise<HTMLElement> {
     const app = plugin.app;
