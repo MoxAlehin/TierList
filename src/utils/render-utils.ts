@@ -4,6 +4,7 @@ import {
 } from 'obsidian';
 
 import { TierListSettings } from 'settings';
+import { text } from 'stream/consumers';
 
 export async function renderSlot(plugin: Plugin, settings: TierListSettings, slot: HTMLElement): Promise<HTMLElement> {
     const app = plugin.app;
@@ -42,6 +43,29 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
         slot.style.backgroundColor = child.style.backgroundColor;
     }
 
+    const fileEmbed = slot.find('.internal-embed.file-embed.mod-generic.is-loaded')
+    if (fileEmbed) {
+        const textNode = findTextNodeRecursive(fileEmbed);
+        if (textNode) {
+            textNode.nodeValue = fileEmbed.getAttr('alt');
+        }
+    }
+
     return slot;
+}
+
+function findTextNodeRecursive(element: HTMLElement): Text | null {
+    const childNodesArray: ChildNode[] = Array.from(element.childNodes); // Преобразуем в массив
+
+    for (const node of childNodesArray) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            return node as Text; // Приводим к типу Text
+        }
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            const found = findTextNodeRecursive(node as HTMLElement);
+            if (found) return found;
+        }
+    }
+    return null;
 }
 

@@ -91,7 +91,7 @@
     /* filter: blur(0.5px); */
 }
 
-.tier-list-slot > span[style*="transform"] img {
+.tier-list-slot>span[style*="transform"] img {
     object-fit: contain;
 }
 
@@ -102,7 +102,7 @@
     height: 100%;
     width: 100%;
     align-items: center;
-    display: flex;
+    display: flex !important;
     text-align: center;
     justify-content: center;
 }
