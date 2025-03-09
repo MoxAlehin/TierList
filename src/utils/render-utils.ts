@@ -55,11 +55,11 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
 }
 
 function findTextNodeRecursive(element: HTMLElement): Text | null {
-    const childNodesArray: ChildNode[] = Array.from(element.childNodes); // Преобразуем в массив
+    const childNodesArray: ChildNode[] = Array.from(element.childNodes);
 
     for (const node of childNodesArray) {
         if (node.nodeType === Node.TEXT_NODE) {
-            return node as Text; // Приводим к типу Text
+            return node as Text;
         }
         if (node.nodeType === Node.ELEMENT_NODE) {
             const found = findTextNodeRecursive(node as HTMLElement);

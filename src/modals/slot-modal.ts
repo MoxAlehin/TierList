@@ -39,10 +39,9 @@ class ParsedInput {
 
         const styleMatch = rawValue.match(/<span style="([^">]+);">(.+?)<\/span>/);
         if (styleMatch) {
-            const styleString = styleMatch[1]; // Получаем строку со стилями
-            rawValue = styleMatch[2]; // Получаем содержимое внутри <span>
+            const styleString = styleMatch[1];
+            rawValue = styleMatch[2];
 
-            // Парсим стили
             const styles = styleString.split(";").map(s => s.trim()).filter(s => s);
             for (const style of styles) {
                 const [key, value] = style.split(":").map(s => s.trim());

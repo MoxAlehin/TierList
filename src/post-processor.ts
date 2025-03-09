@@ -204,7 +204,20 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                         if (img) {
                             const src = img.getAttribute('src');
                             if (src) {
-                                window.open(src, '_blank');
+                                const isExternal = src.startsWith('http://') || src.startsWith('https://');
+                                console.log(src)
+                                if (isExternal) {
+                                    window.open(src, '_blank');
+                                } else {
+                                    const match = decodeURIComponent(src).match(/.*[\\\/]([\d\w\.]*)\??/);
+                                    if (match) {
+                                        const href = match[1];
+                                        const file = app.metadataCache.getFirstLinkpathDest(href, '');
+                                        if (file) {
+                                            app.workspace.openLinkText(href, file.path);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
