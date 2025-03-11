@@ -20,6 +20,7 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
                     parent.textContent = '';
                     await MarkdownRenderer.render(app, `!${imageSrc}`, parent, '', plugin);
                     slot.setAttr('href', filePath);
+                    slot.setAttr('title', link.textContent);
                 }
             }
         }
@@ -44,6 +45,11 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
         if (textNode) {
             textNode.nodeValue = fileEmbed.getAttr('alt');
         }
+    }
+
+    const altEl = slot.find('[alt]')
+    if (altEl) {
+        slot.setAttr('title', altEl.getAttr('alt'));
     }
 
     return slot;
