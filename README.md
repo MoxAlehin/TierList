@@ -33,7 +33,7 @@ The Tier List plugin supports interaction in both **Editing View** and **Reading
 
 If you need **fast text input** without additional styling, **Editing View** is the best choice. However, if you want **more customization**, including colors, transformations, and extra features, **Reading View with modal editing** provides a better experience.
 
-![Slot Modal](Images/TierList_Slot_Modal.jpg)
+![Slot Modal](Images/TierList_Slot_Modal.gif)
 
 ## Settings
 
@@ -49,7 +49,7 @@ This plugin integrates with [Dataview](https://blacksmithgu.github.io/obsidian-d
 2. In the modal window, configure the query settings (`From`, `Where`).
 3. The plugin will retrieve matching notes and add missing entries to your tier list.
 
-![Dataview Modal](Images/TierList_DataviewModal.png)
+![Dataview Modal](Images/TierList_Dataview.gif)
 
 ### Settings Persistence
 - The last used query is saved in the settings list for future use.
