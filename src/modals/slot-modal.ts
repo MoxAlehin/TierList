@@ -317,11 +317,8 @@ export class SlotModal extends Modal {
 
             if (isDragging) {
                 const computedStyle = getComputedStyle(this.renderEl.find('.tier-list-slot'));
-                const slotWidth = parseFloat(computedStyle.width);
-                const multiplier = 100 / slotWidth;
-                
-                this.value.x = startX + (event.clientX - mouseStartX) * multiplier;
-                this.value.y = startY + (event.clientY - mouseStartY) * multiplier;
+                this.value.x = startX + (event.clientX - mouseStartX) * 100 / parseFloat(computedStyle.width);
+                this.value.y = startY + (event.clientY - mouseStartY) * 100 / parseFloat(computedStyle.height);
                 this.render();
             }
 
