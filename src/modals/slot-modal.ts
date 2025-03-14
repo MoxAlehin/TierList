@@ -88,7 +88,7 @@ class ParsedInput {
     }
 
     private parseTransform(transformString: string) {
-        const translateMatch = transformString.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+        const translateMatch = transformString.match(/translate\(([-\d.]+)%,\s*([-\d.]+)%\)/);
         const rotateMatch = transformString.match(/rotate\(([-\d.]+)deg\)/);
         const scaleMatch = transformString.match(/scale\(([-\d.]+),? ?([-\d.]+)?\)/);
         if (translateMatch) {
@@ -122,7 +122,7 @@ class ParsedInput {
         const scale = Number(this.scale.toFixed(2));
 
         if (x !== 0 || y !== 0) {
-            transforms.push(`translate(${x}px, ${y}px)`);
+            transforms.push(`translate(${x}%, ${y}%)`);
         }
         if (rotation !== 0) {
             transforms.push(`rotate(${rotation}deg)`);
@@ -316,8 +316,12 @@ export class SlotModal extends Modal {
             }
 
             if (isDragging) {
-                this.value.x = startX + event.clientX - mouseStartX;
-                this.value.y = startY + event.clientY - mouseStartY;
+                const computedStyle = getComputedStyle(this.renderEl.find('.tier-list-slot'));
+                const slotWidth = parseFloat(computedStyle.width);
+                const multiplier = 100 / slotWidth;
+                
+                this.value.x = startX + (event.clientX - mouseStartX) * multiplier;
+                this.value.y = startY + (event.clientY - mouseStartY) * multiplier;
                 this.render();
             }
 
