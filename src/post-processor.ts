@@ -300,7 +300,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 }).open();
             }));
             menu.addItem((item) => {
-                (item as any).dom.addClass("option-red");
+                (item as any).dom.addClass("is-warning");
                 item.setTitle("Delete slot").setIcon("trash-2").onClick(async () => {
                     scroll = scrollableEl.scrollTop;
                     await deleteLineInActiveFile(app, line);

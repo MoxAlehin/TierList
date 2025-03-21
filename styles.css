@@ -111,11 +111,6 @@
     cursor: help !important;
 }
 
-.option-red,
-.option-red:hover {
-    background-color: var(--color-red) !important;
-}
-
 /* Settings Tab */
 
 .tier-list-settings .tier-list-number-setting {
