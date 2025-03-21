@@ -18,7 +18,7 @@ Using markdown links within a Tier List ensures that all items maintain their re
 
 ## How to use
 
-To use the Tier List plugin, you can either insert the `#tier-list` *(can be changed in plugin settings)* tag anywhere within a numbered list, which marks the list for tier rendering, or use the command `Insert tier list` to automatically create a list preformatted for ranking.
+To use the Tier List plugin, you can either insert the `#tier-list` *(can be changed in plugin settings)* tag anywhere within an unordered list, which marks the list for tier rendering, or use the command `Insert tier list` to automatically create a list preformatted for ranking.
 
 Tier List also includes a `To Rank` section, where items that have not yet been placed in a specific tier will be shown. This section collapses automatically once it becomes empty, keeping the view clean and focused on ranked items.
 
