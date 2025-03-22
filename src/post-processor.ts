@@ -149,7 +149,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
 
         function addCursorChangeHandler(slot: HTMLElement) {
             slot.addEventListener('mouseover', (event: MouseEvent) => {
-                if (event.ctrlKey) {
+                if (event.ctrlKey || event.metaKey) {
                     slot.classList.add('help-cursor');
                 }
             });
@@ -159,7 +159,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             });
 
             slot.addEventListener('mousemove', (event: MouseEvent) => {
-                if (event.ctrlKey) {
+                if (event.ctrlKey || event.metaKey) {
                     slot.classList.add('help-cursor');
                 } else {
                     slot.classList.remove('help-cursor');
@@ -175,7 +175,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     return;
                 }
 
-                if (event.ctrlKey) {
+                if (event.ctrlKey || event.metaKey) {
                     event.stopPropagation();
 
                     const link = slot.find('a.internal-link, a.external-link');
