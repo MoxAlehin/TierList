@@ -22,6 +22,7 @@ export interface TierListSettings {
 	from: string;
 	where: string;
 	lastSlotType: InputType;
+	title: boolean;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -43,7 +44,8 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	animation: 150,
 	from: '',
 	where: "",
-	lastSlotType: InputType.Text
+	lastSlotType: InputType.Text,
+	title: false
 };
 
 export function setSetting(key: string, value: string, settings: TierListSettings) {
@@ -52,16 +54,16 @@ export function setSetting(key: string, value: string, settings: TierListSetting
 	let val;
 
 	switch (type) {
-        case "boolean":
-            val = value.toLowerCase() === "true";
+		case "boolean":
+			val = value.toLowerCase() === "true";
 			break;
-        case "number":
-            val = value.includes(".") ? parseFloat(value) : parseInt(value);
+		case "number":
+			val = value.includes(".") ? parseFloat(value) : parseInt(value);
 			break;
-        case "string":
-            val = value;
+		case "string":
+			val = value;
 			break;
-    }
+	}
 
 	(settings[key as keyof TierListSettings] as any) = val;
 }
@@ -141,7 +143,7 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		
+
 		// Tag Name Text
 		new Setting(containerEl)
 			.setName('Tier list tag')
@@ -170,19 +172,19 @@ export class SettingTab extends PluginSettingTab {
 
 		// Tier List Slot X/Y Ratio(Float)
 		new Setting(containerEl)
-		.setName('Tier list slot width/height ratio')
-		.setDesc('') //TODO
-		.addText(text => {
-			// text.inputEl.classList.add('tier-list-number-setting');
-			text
-				.setValue(this.plugin.settings.ratio.toString())
-				.onChange(async value => {
-					if (await this.checkNumber(text, /^\d+\.?\d*$/)) {
-						this.plugin.settings.ratio = Number(text.getValue());
-						this.plugin.saveSettings();
-					}
-				});
-		});
+			.setName('Tier list slot width/height ratio')
+			.setDesc('') //TODO
+			.addText(text => {
+				// text.inputEl.classList.add('tier-list-number-setting');
+				text
+					.setValue(this.plugin.settings.ratio.toString())
+					.onChange(async value => {
+						if (await this.checkNumber(text, /^\d+\.?\d*$/)) {
+							this.plugin.settings.ratio = Number(text.getValue());
+							this.plugin.saveSettings();
+						}
+					});
+			});
 
 		// Tier List Container Width Text(Integer)
 		new Setting(containerEl)
@@ -215,18 +217,30 @@ export class SettingTab extends PluginSettingTab {
 				});
 			});
 
+		// Show title
+		new Setting(containerEl)
+			.setName('Show title')
+			// .setDesc('How many slots will be displayed on one row before wrap to next line')
+			.addToggle(cb => {
+				cb.setValue(this.plugin.settings.title);
+				cb.onChange((value) => {
+					this.plugin.settings.title = value;
+					this.plugin.saveSettings();
+				})
+			});
+
 		// Default Tier List Header/////////////////////////////////////////////////////////////////////////////////////
 		new Setting(containerEl).setName('Template').setHeading();
 
 		new Setting(containerEl)
-				.setName(`Use coloring`)
-				.addToggle(toggle => {
-					toggle.setValue(this.plugin.settings.useColors);
-					toggle.onChange((value) => {
-						this.plugin.settings.useColors = value;
-						this.plugin.saveSettings();
-					})
+			.setName(`Use coloring`)
+			.addToggle(toggle => {
+				toggle.setValue(this.plugin.settings.useColors);
+				toggle.onChange((value) => {
+					this.plugin.settings.useColors = value;
+					this.plugin.saveSettings();
 				})
+			});
 
 		const tierListEl = containerEl.createEl('div', { cls: 'tier-lists' });
 
@@ -245,7 +259,7 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 				);
-			
+
 			// Tier Color Picker
 			setting.addColorPicker(picker => {
 				picker.setValue(tier.color);

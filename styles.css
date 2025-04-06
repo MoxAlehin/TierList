@@ -111,6 +111,48 @@
     cursor: help !important;
 }
 
+/* Text overlay for covers */
+.tier-list-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6px;
+    color: var(--text-normal);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: bold;
+    transition: opacity 0.2s ease;
+    max-height: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tier-list-title-background {
+    background-color: var(--color-base-25);
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.tier-list-title-text {
+    z-index: 2;
+}
+
+.tier-list-slot:hover .tier-list-title {
+    white-space: normal;
+    max-height: 50%;
+    overflow-y: auto;
+}
+
 /* Settings Tab */
 
 .tier-list-settings .tier-list-number-setting {

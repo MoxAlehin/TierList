@@ -20,7 +20,12 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
                     parent.textContent = '';
                     await MarkdownRenderer.render(app, `!${imageSrc}`, parent, '', plugin);
                     slot.setAttr('href', filePath);
-                    slot.setAttr('title', link.textContent);
+                    if (settings.title) {
+                        addTitle(slot, link.textContent || '');
+                    }
+                    else {
+                        slot.setAttr('title', link.textContent);
+                    }
                 }
             }
         }
@@ -48,11 +53,33 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
     }
 
     const altEl = slot.find('[alt]')
-    if (altEl) {
-        slot.setAttr('title', altEl.getAttr('alt'));
+    if (altEl && !fileEmbed) {
+        if (settings.title) {
+            addTitle(slot, altEl.getAttr('alt') || '');
+        }
+        else {
+            slot.setAttr('title', altEl.getAttr('alt'));
+        }
     }
 
     return slot;
+}
+
+function addTitle(parentElement: HTMLElement, text: string) {
+        if (parentElement.find('.tier-list-title')) return;
+
+        const textOverlay = parentElement.createEl('div', {
+            cls: 'tier-list-title',
+        });
+    
+        const backgroundElement = textOverlay.createEl('div', {
+            cls: 'tier-list-title-background',
+        });
+    
+        const textElement = textOverlay.createEl('span', {
+            text: text,
+            cls: 'tier-list-title-text',
+        });
 }
 
 function findTextNodeRecursive(element: HTMLElement): Text | null {

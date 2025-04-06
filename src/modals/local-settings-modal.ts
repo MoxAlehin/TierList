@@ -1,9 +1,9 @@
 import { App, Modal, Setting } from "obsidian";
 import { TierListSettings, DEFAULT_SETTINGS } from 'settings';
 
-type EditableSettings = "width" | "slots" | "ratio" | "from" | "where" | "image";
+type EditableSettings = "width" | "slots" | "ratio" | "from" | "where" | "image" | "title";
 
-const AVAILABLE_SETTINGS: EditableSettings[] = ["width", "slots", "ratio", "from", "where", "image"];
+const AVAILABLE_SETTINGS: EditableSettings[] = ["width", "slots", "ratio", "from", "where", "image", "title"];
 
 export class LocalSettingsModal extends Modal {
     private settings: TierListSettings;
@@ -25,21 +25,40 @@ export class LocalSettingsModal extends Modal {
 
         AVAILABLE_SETTINGS.forEach((key) => {
             updatedSettings[key] = settings[key] as any;
-            new Setting(contentEl)
-                .setName(key.charAt(0).toUpperCase() + key.slice(1))
-                .addText((text) => {
-                    const initialValue = settings[key] as string | number;
 
-                    text.setValue(String(initialValue)).onChange((value) => {
-                        const defaultValue = DEFAULT_SETTINGS[key];
+            const settingValue = settings[key];
 
-                        if (typeof defaultValue === "number") {
-                            (updatedSettings as Record<string, number | string>)[key] = Number(value) || 0;
-                        } else {
-                            (updatedSettings as Record<string, number | string>)[key] = value;
-                        }
+            if (typeof settingValue === 'boolean') {
+                // Add toggle for boolean settings (like showTitle)
+                new Setting(contentEl)
+                    .setName(key.charAt(0).toUpperCase() + key.slice(1))
+                    .addToggle((toggle) => {
+                        toggle
+                            .setValue(settingValue)
+                            .onChange((value) => {
+                                (updatedSettings as Record<string, boolean>)[key] = value;
+                            });
                     });
-                });
+            } else {
+                // Add text input for other settings (like width, slots, etc.)
+                new Setting(contentEl)
+                    .setName(key.charAt(0).toUpperCase() + key.slice(1))
+                    .addText((text) => {
+                        const initialValue = settingValue as string | number;
+
+                        text
+                            .setValue(String(initialValue))
+                            .onChange((value) => {
+                                const defaultValue = DEFAULT_SETTINGS[key];
+
+                                if (typeof defaultValue === "number") {
+                                    (updatedSettings as Record<string, number | string>)[key] = Number(value) || 0;
+                                } else {
+                                    (updatedSettings as Record<string, number | string>)[key] = value;
+                                }
+                            });
+                    });
+            }
         });
 
         new Setting(contentEl)

@@ -10,7 +10,7 @@ import {
 } from 'utils/file-utils';
 import { SlotModal } from 'modals/slot-modal';
 import { DataviewSearchModal } from 'modals/request-modal'
-import { TierListSettings, setSetting, DEFAULT_SETTINGS } from 'settings';
+import { TierListSettings, setSetting } from 'settings';
 import { getAPI } from "obsidian-dataview";
 import { LocalSettingsModal } from 'modals/local-settings-modal';
 import TierListPlugin from 'main';
@@ -114,9 +114,8 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             const settingsList = tierList.find(".settings");
             settings = Object.fromEntries(
                 Object.entries(settings).filter(([key, value]) =>
-                    DEFAULT_SETTINGS[key as keyof TierListSettings] !== value
+                    plugin.settings[key as keyof TierListSettings] !== value
                 ));
-
             const values = Object.entries(settings)
                 .map(([key, value]) => `\t- ${key}: ${value}`);
             if (settingsList) {
@@ -399,13 +398,13 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         }
 
         async function initializeTierSlots() {
-            for (const li of tierList.findAll(":scope > ul > li")) {
-
+            const listItems = tierList.findAll(":scope > ul > li");
+            for (const li of listItems.reverse()) {
                 let text: string = "";
                 let unordered: boolean = false;
                 li.childNodes.forEach(node => {
                     if (node.nodeType === Node.TEXT_NODE) {
-                        if (node.nodeValue?.contains(localSettings.settings)) {
+                        if (node.nodeValue && node.nodeValue.trim() == localSettings.settings.trim()) {
                             settingsProcessing(li, localSettings);
                         }
 
