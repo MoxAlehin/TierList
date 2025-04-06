@@ -9,7 +9,7 @@
 }
 
 .tier-list>ul {
-    font-size: 0.7em;
+    font-size: var(--font-text-size);
     background-color: var(--background-modifier-border);
     display: inline-block;
     padding: 0px;
@@ -111,8 +111,12 @@
     cursor: help !important;
 }
 
-.markdown-embed-content.node-insert-event {
+.tier-list .markdown-embed-content.node-insert-event {
     max-height: 100%;
+}
+
+.tier-list .markdown-preview-view.markdown-rendered.node-insert-event.show-indentation-guide.allow-fold-headings.allow-fold-lists::-webkit-scrollbar {
+    display: none;
 }
 
 /* Text overlay for covers */
