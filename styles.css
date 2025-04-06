@@ -111,6 +111,10 @@
     cursor: help !important;
 }
 
+.markdown-embed-content.node-insert-event {
+    max-height: 100%;
+}
+
 /* Text overlay for covers */
 .tier-list-title {
     position: absolute;

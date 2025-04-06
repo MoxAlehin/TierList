@@ -62,24 +62,29 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
         }
     }
 
+    const embedTitle = slot.find('.markdown-embed-title');
+    if (embedTitle) {
+        embedTitle.remove();
+    }
+
     return slot;
 }
 
 function addTitle(parentElement: HTMLElement, text: string) {
-        if (parentElement.find('.tier-list-title')) return;
+    if (parentElement.find('.tier-list-title')) return;
 
-        const textOverlay = parentElement.createEl('div', {
-            cls: 'tier-list-title',
-        });
-    
-        const backgroundElement = textOverlay.createEl('div', {
-            cls: 'tier-list-title-background',
-        });
-    
-        const textElement = textOverlay.createEl('span', {
-            text: text,
-            cls: 'tier-list-title-text',
-        });
+    const textOverlay = parentElement.createEl('div', {
+        cls: 'tier-list-title',
+    });
+
+    const backgroundElement = textOverlay.createEl('div', {
+        cls: 'tier-list-title-background',
+    });
+
+    const textElement = textOverlay.createEl('span', {
+        text: text,
+        cls: 'tier-list-title-text',
+    });
 }
 
 function findTextNodeRecursive(element: HTMLElement): Text | null {
