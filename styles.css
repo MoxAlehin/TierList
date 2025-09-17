@@ -9,12 +9,16 @@
 }
 
 .tier-list>ul {
-    font-size: var(--font-text-size);
+    font-size: var(--tier-list-font-size, var(--font-text-size));
     background-color: var(--background-modifier-border);
     display: inline-block;
     padding: 0px;
     --tier-list-indent: var(--hr-thickness);
     --tier-list-slot-width: calc((var(--screen-width) * var(--tier-list-width-ratio) - 3 * var(--tier-list-indent)) / (var(--tier-list-slot-count) + 1))
+}
+
+.tier-list {
+    font-size: var(--tier-list-font-size, inherit);
 }
 
 .tier-list .unordered {
@@ -66,6 +70,15 @@
     margin: 0px !important;
     word-break: break-word;
     padding: 0px !important;
+    font-size: var(--tier-list-font-size, inherit);
+}
+
+.tier-list-slot * {
+    font-size: inherit !important;
+}
+
+.tier-list .tier-list-tier {
+    font-size: var(--tier-list-font-size, inherit) !important;
 }
 
 .tier-list-slot:not(:has(*)) {
@@ -105,6 +118,7 @@
     display: flex !important;
     text-align: center;
     justify-content: center;
+    font-size: inherit;
 }
 
 .help-cursor {
@@ -131,7 +145,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 12px;
+    font-size: var(--tier-list-font-size, 12px);
     font-weight: bold;
     transition: opacity 0.2s ease;
     max-height: 40%;

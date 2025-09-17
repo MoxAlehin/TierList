@@ -21,6 +21,11 @@ export function redraw(el: HTMLElement, settings: TierListSettings) {
     el.style.setProperty('--screen-width', `${screen.width}px`);
     el.style.setProperty('--tier-list-slot-count', `${settings.slots}`);
     el.style.setProperty('--tier-list-aspect-ratio', `${settings.ratio}`);
+    if (settings.fontSize && settings.fontSize.trim() !== '') {
+        el.style.setProperty('--tier-list-font-size', settings.fontSize);
+    } else {
+        el.style.removeProperty('--tier-list-font-size');
+    }
 }
 
 function findDataLine(el: HTMLElement): number {
@@ -83,9 +88,14 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         const scrollableEl = document.documentElement.find('.markdown-preview-view');
         scrollableEl.scrollTo(0, scroll);
 
+        function toPascalCase(str: string): string {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
         async function writeSetting(key: string, value: string) {
             const settingsList = tierList.find(".settings");
-            const valueText = `\t- ${key}: ${value}`;
+            const pascalKey = toPascalCase(key);
+            const valueText = `\t- ${pascalKey}: ${value}`;
             if (settingsList) {
                 for (const setting of settingsList.findAll('li')) {
                     const text = setting.textContent || '';
@@ -117,7 +127,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                     plugin.settings[key as keyof TierListSettings] !== value
                 ));
             const values = Object.entries(settings)
-                .map(([key, value]) => `\t- ${key}: ${value}`);
+                .map(([key, value]) => `\t- ${toPascalCase(key)}: ${value}`);
             if (settingsList) {
                 const settingLine = findDataLine(settingsList) + 1;
                 scroll = scrollableEl.scrollTop;
@@ -440,6 +450,10 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
             }
         }
 
+        function toCamelCase(str: string): string {
+            return str.charAt(0).toLowerCase() + str.slice(1);
+        }
+
         function settingsProcessing(list: HTMLElement, settings: TierListSettings) {
             list.addClass("settings");
             const pairs: { [key: string]: string } = {};
@@ -448,7 +462,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 const text = setting.textContent || '';
                 const [key, value] = text.split(':').map(item => item.trim());
                 if (key && value) {
-                    pairs[key] = value;
+                    pairs[toCamelCase(key)] = value;
                 }
             });
 
@@ -507,7 +521,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         await initializeSlots();
         await initializeRows();
 
-        redraw(tierList, localSettings);
+        redraw(document.documentElement, localSettings);
         scrollableEl.scrollTo(0, scroll);
     }
 }

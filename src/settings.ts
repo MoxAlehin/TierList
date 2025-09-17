@@ -23,6 +23,7 @@ export interface TierListSettings {
 	where: string;
 	lastSlotType: InputType;
 	title: boolean;
+	fontSize: string;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -45,7 +46,8 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	from: '',
 	where: "",
 	lastSlotType: InputType.Text,
-	title: false
+	title: false,
+	fontSize: ''
 };
 
 export function setSetting(key: string, value: string, settings: TierListSettings) {
@@ -61,7 +63,7 @@ export function setSetting(key: string, value: string, settings: TierListSetting
 			val = value.includes(".") ? parseFloat(value) : parseInt(value);
 			break;
 		case "string":
-			val = value;
+			val = value.trim();
 			break;
 	}
 
