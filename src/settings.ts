@@ -51,8 +51,9 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 };
 
 export function setSetting(key: string, value: string, settings: TierListSettings) {
-	key = key.toLowerCase();
-	const type = typeof settings[key as keyof TierListSettings];
+	// Convert PascalCase to camelCase for property access
+	const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+	const type = typeof settings[camelKey as keyof TierListSettings];
 	let val;
 
 	switch (type) {
@@ -67,7 +68,7 @@ export function setSetting(key: string, value: string, settings: TierListSetting
 			break;
 	}
 
-	(settings[key as keyof TierListSettings] as any) = val;
+	(settings[camelKey as keyof TierListSettings] as any) = val;
 }
 
 export class SettingTab extends PluginSettingTab {
