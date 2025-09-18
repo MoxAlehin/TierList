@@ -187,49 +187,32 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                 // Handle Shift+Click with Click field override
                 if (event.shiftKey && localSettings.click && localSettings.click.trim() !== '') {
                     event.stopPropagation();
-                    console.log('Shift+Click detected, click property:', localSettings.click);
                     
                     // Get the file path from slot's href attribute (set during rendering)
                     const filePath = slot.getAttribute('href');
-                    console.log('Slot href attribute:', filePath);
                     
                     if (filePath) {
                         const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
-                        console.log('Found file:', file);
                         if (file) {
                             // Get the note's metadata
                             const metadata = app.metadataCache.getFileCache(file);
-                            console.log('File metadata:', metadata);
                             if (metadata && metadata.frontmatter) {
                                 const clickValue = metadata.frontmatter[localSettings.click];
-                                console.log('Click value from metadata:', clickValue);
                                 if (clickValue && typeof clickValue === 'string') {
                                     // Open the link from the metadata field
                                     if (clickValue.startsWith('http://') || clickValue.startsWith('https://')) {
-                                        console.log('Opening external link:', clickValue);
                                         window.open(clickValue, '_blank');
                                     } else {
                                         // Treat as internal link
-                                        console.log('Opening internal link:', clickValue);
                                         const destFile = app.metadataCache.getFirstLinkpathDest(clickValue, file.path);
                                         if (destFile) {
                                             app.workspace.openLinkText(clickValue, file.path);
-                                        } else {
-                                            console.log('Could not find destination file for:', clickValue);
                                         }
                                     }
                                     return;
-                                } else {
-                                    console.log('No click value found in metadata for field:', localSettings.click);
                                 }
-                            } else {
-                                console.log('No metadata or frontmatter found for file');
                             }
-                        } else {
-                            console.log('Could not find file for path:', filePath);
                         }
-                    } else {
-                        console.log('No href attribute found on slot. Slot content:', slot.innerHTML);
                     }
                 }
 
@@ -264,7 +247,6 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
                             const src = img.getAttribute('src');
                             if (src) {
                                 const isExternal = src.startsWith('http://') || src.startsWith('https://');
-                                console.log(src)
                                 if (isExternal) {
                                     window.open(src, '_blank');
                                 } else {
