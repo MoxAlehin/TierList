@@ -191,7 +191,11 @@
 }
 
 .tier-list-settings .setting-item-control:has(input.tier-list-ms-setting)::after {
-    content: 'ms';
+    content: 'ms\00a0';
+}
+
+.tier-list-settings .setting-item-control:has(input.tier-list-ratio-setting)::after {
+    content: 'w/h';
 }
 
 .tier-list-settings .tier-item {

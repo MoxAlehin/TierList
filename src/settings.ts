@@ -24,6 +24,7 @@ export interface TierListSettings {
 	lastSlotType: InputType;
 	title: boolean;
 	fontSize: string;
+	click: string;
 }
 
 export const DEFAULT_SETTINGS: TierListSettings = {
@@ -47,7 +48,8 @@ export const DEFAULT_SETTINGS: TierListSettings = {
 	where: "",
 	lastSlotType: InputType.Text,
 	title: false,
-	fontSize: ''
+	fontSize: '',
+	click: ''
 };
 
 export function setSetting(key: string, value: string, settings: TierListSettings) {
@@ -102,92 +104,8 @@ export class SettingTab extends PluginSettingTab {
 		containerEl.empty();
 		containerEl.addClass("tier-list-settings")
 
-		// Default Settings Header/////////////////////////////////////////////////////////////////////////////////////
-		// new Setting(containerEl).setName('Global').setHeading();
-
-		// Tier List Animation Duration(Integer)
-		new Setting(containerEl)
-			.setName('Animation duration')
-			.setDesc('Animation speed moving items when sorting, 0 — without animation')
-			.addText(text => {
-				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-ms-setting');
-				text
-					.setValue(this.plugin.settings.animation.toString())
-					.onChange(async value => {
-						if (await this.checkNumber(text, /^([0-9]{1,3})$/)) {
-							this.plugin.settings.animation = Number(text.getValue());
-							this.plugin.saveSettings();
-						}
-					});
-			});
-
-		// Image Name Text
-		new Setting(containerEl)
-			.setName('Image property name')
-			.setDesc('Obsidian property which is used as Image reference')
-			.addText(text => {
-				text
-					.setValue(this.plugin.settings.image)
-					.onChange(async value => {
-						this.plugin.settings.image = value;
-						await this.plugin.saveSettings();
-					});
-			});
-
-		// Rank List Name Text
-		new Setting(containerEl)
-			.setName('To rank list name')
-			.setDesc('The last and not renderable list')
-			.addText(text => {
-				text
-					.setValue(this.plugin.settings.unordered)
-					.onChange(async value => {
-						this.plugin.settings.unordered = value;
-						await this.plugin.saveSettings();
-					});
-			});
-
-		// Tag Name Text
-		new Setting(containerEl)
-			.setName('Tier list tag')
-			.setDesc('Tag which marks list as Tier List')
-			.addText(text => {
-				text
-					.setValue(this.plugin.settings.tag)
-					.onChange(async value => {
-						this.plugin.settings.tag = value;
-						await this.plugin.saveSettings();
-					});
-			});
-
-		// Settings Name Text
-		new Setting(containerEl)
-			.setName('Settings name')
-			.setDesc('') //TODO
-			.addText(text => {
-				text
-					.setValue(this.plugin.settings.settings)
-					.onChange(async value => {
-						this.plugin.settings.settings = value;
-						await this.plugin.saveSettings();
-					});
-			});
-
-		// Tier List Slot X/Y Ratio(Float)
-		new Setting(containerEl)
-			.setName('Tier list slot width/height ratio')
-			.setDesc('') //TODO
-			.addText(text => {
-				// text.inputEl.classList.add('tier-list-number-setting');
-				text
-					.setValue(this.plugin.settings.ratio.toString())
-					.onChange(async value => {
-						if (await this.checkNumber(text, /^\d+\.?\d*$/)) {
-							this.plugin.settings.ratio = Number(text.getValue());
-							this.plugin.saveSettings();
-						}
-					});
-			});
+		// Display Settings Header
+		new Setting(containerEl).setName('Display Settings').setHeading();
 
 		// Tier List Container Width Text(Integer)
 		new Setting(containerEl)
@@ -220,16 +138,119 @@ export class SettingTab extends PluginSettingTab {
 				});
 			});
 
+		// Tier List Slot X/Y Ratio(Float)
+		new Setting(containerEl)
+			.setName('Tier list slot width/height ratio')
+			.setDesc('Aspect ratio for slot dimensions (width/height)')
+			.addText(text => {
+				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-ratio-setting');
+				text
+					.setValue(this.plugin.settings.ratio.toString())
+					.onChange(async value => {
+						if (await this.checkNumber(text, /^\d+\.?\d*$/)) {
+							this.plugin.settings.ratio = Number(text.getValue());
+							this.plugin.saveSettings();
+						}
+					});
+			});
+
+		// Tier List Animation Duration(Integer)
+		new Setting(containerEl)
+			.setName('Animation duration')
+			.setDesc('Animation speed moving items when sorting, 0 — without animation')
+			.addText(text => {
+				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-ms-setting');
+				text
+					.setValue(this.plugin.settings.animation.toString())
+					.onChange(async value => {
+						if (await this.checkNumber(text, /^([0-9]{1,3})$/)) {
+							this.plugin.settings.animation = Number(text.getValue());
+							this.plugin.saveSettings();
+						}
+					});
+			});
+
+		// Content Settings Header
+		new Setting(containerEl).setName('Content Settings').setHeading();
+
 		// Show title
 		new Setting(containerEl)
 			.setName('Show title')
-			// .setDesc('How many slots will be displayed on one row before wrap to next line')
+			.setDesc('Display title overlay on slots with images')
 			.addToggle(cb => {
 				cb.setValue(this.plugin.settings.title);
 				cb.onChange((value) => {
 					this.plugin.settings.title = value;
 					this.plugin.saveSettings();
 				})
+			});
+
+		// Image Name Text
+		new Setting(containerEl)
+			.setName('Image property name')
+			.setDesc('Obsidian property which is used as Image reference')
+			.addText(text => {
+				text
+					.setValue(this.plugin.settings.image)
+					.onChange(async value => {
+						this.plugin.settings.image = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// Click field name
+		new Setting(containerEl)
+			.setName('Click field name')
+			.setDesc('Property name for Shift+Click override. When set, Shift+Click on a slot will open the link from this property in the note\'s metadata.')
+			.addText(text => {
+				text
+					.setValue(this.plugin.settings.click)
+					.onChange(async value => {
+						this.plugin.settings.click = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// Structure Settings Header
+		new Setting(containerEl).setName('Structure Settings').setHeading();
+
+		// Tag Name Text
+		new Setting(containerEl)
+			.setName('Tier list tag')
+			.setDesc('Tag which marks list as Tier List')
+			.addText(text => {
+				text
+					.setValue(this.plugin.settings.tag)
+					.onChange(async value => {
+						this.plugin.settings.tag = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// Settings Name Text
+		new Setting(containerEl)
+			.setName('Settings name')
+			.setDesc('Name for the settings list in tier lists')
+			.addText(text => {
+				text
+					.setValue(this.plugin.settings.settings)
+					.onChange(async value => {
+						this.plugin.settings.settings = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// Rank List Name Text
+		new Setting(containerEl)
+			.setName('To rank list name')
+			.setDesc('The last and not renderable list')
+			.addText(text => {
+				text
+					.setValue(this.plugin.settings.unordered)
+					.onChange(async value => {
+						this.plugin.settings.unordered = value;
+						await this.plugin.saveSettings();
+					});
 			});
 
 		// Default Tier List Header/////////////////////////////////////////////////////////////////////////////////////
