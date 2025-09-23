@@ -170,6 +170,21 @@ export class SettingTab extends PluginSettingTab {
 					});
 			});
 
+		// Font Size Text
+		new Setting(containerEl)
+			.setName('Font size')
+			.setDesc('CSS font size value. If empty, text adapts to Obsidian\'s current font.')
+			.addText(text => {
+				text.inputEl.classList.add('tier-list-number-setting', 'tier-list-font-size-setting');
+				text
+					.setValue(this.plugin.settings.fontSize)
+					.setPlaceholder('14px')
+					.onChange(async value => {
+						this.plugin.settings.fontSize = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
 		// Content Settings Header
 		new Setting(containerEl).setName('Content Settings').setHeading();
 

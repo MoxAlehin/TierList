@@ -198,6 +198,11 @@
     content: 'w/h';
 }
 
+.tier-list-settings .tier-list-font-size-setting {
+    width: 5.4em;
+    text-align: left;
+}
+
 .tier-list-settings .tier-item {
     display: flex;
     align-items: center;
