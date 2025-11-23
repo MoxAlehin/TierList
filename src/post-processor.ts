@@ -553,7 +553,7 @@ export function generateTierListPostProcessor(plugin: TierListPlugin): (tierList
         await initializeSlots();
         await initializeRows();
 
-        redraw(document.documentElement, localSettings);
+        redraw(tierList, localSettings);
         scrollableEl.scrollTo(0, scroll);
     }
 }
