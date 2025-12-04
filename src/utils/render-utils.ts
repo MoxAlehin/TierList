@@ -58,7 +58,7 @@ export async function renderSlot(plugin: Plugin, settings: TierListSettings, slo
             addTitle(slot, altEl.getAttr('alt') || '');
         }
         else {
-            slot.setAttr('title', altEl.getAttr('alt'));
+            slot.setAttr('title', stripExtension(altEl.getAttr('alt')));
         }
     }
 
@@ -85,6 +85,10 @@ function addTitle(parentElement: HTMLElement, text: string) {
         text: text,
         cls: 'tier-list-title-text',
     });
+}
+
+function stripExtension(filename: string | null): string {
+    return filename ? filename.replace(/\.[^/.]+$/, "") : "";
 }
 
 function findTextNodeRecursive(element: HTMLElement): Text | null {
